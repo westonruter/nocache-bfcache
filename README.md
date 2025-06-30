@@ -56,6 +56,6 @@ You may also install and update via [Git Updater](https://git-updater.com/).
 
 ## Changelog ##
 
-### 0.1.0 ###
+### 1.0.0 ###
 
 * Initial release.
