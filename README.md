@@ -37,6 +37,8 @@ There is one additional reason for why the `no-store` directive is used and that
 
 In order to address this privacy concern, this plugin also has a safeguard to protect against restoring pages from bfcache after the user has logged out. This is achieved as follows: When authenticating to WordPress, a "bfcache session token" cookie is sent along with the other authentication cookies. This cookie is not HTTP-only so that it can be read in JavaScript; it is a random string not used for any other purpose. When an authenticated page is served, a script is included which reads the value of this cookie. When a user navigates away from the page and then navigates back to it, a `pageshow` event handler checks to see if it was restored from bfcache. If so, it checks the latest value of the cookie, and if it doesn't match it clears the contents of the page and initiates a page reload so that the contents are not available.
 
+The logic in this plugin is also proposed in a [core patch](https://github.com/WordPress/wordpress-develop/pull/9131) for [#63636](https://core.trac.wordpress.org/ticket/63636): Enable instant page navigations from browser history via bfcache when sending "nocache" headers.
+
 Relevant core tickets that this revisits:
 
 * [#21938](https://core.trac.wordpress.org/ticket/21938): Add "no-store" to Cache-Control header to prevent history caching of admin resources
