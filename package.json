@@ -1,11 +1,11 @@
 {
-	"name": "bfcache",
+	"name": "nocache-bfcache",
 	"author": "Weston Ruter",
 	"license": "GPL-2.0-or-later",
 	"prettier": "@wordpress/prettier-config",
-	"homepage": "https://github.com/westonruter/bfcache",
-	"repository": "https://github.com/westonruter/bfcache",
-	"bugs": "https://github.com/westonruter/bfcache/issues",
+	"homepage": "https://github.com/westonruter/nocache-bfcache",
+	"repository": "https://github.com/westonruter/nocache-bfcache",
+	"bugs": "https://github.com/westonruter/nocache-bfcache/issues",
 	"devDependencies": {
 		"@wordpress/scripts": "*",
 		"husky": "^9",
@@ -18,7 +18,7 @@
 		"lint": "tsc && npm run lint:js && composer phpstan && composer phpcs && composer normalize --dry-run",
 		"lint:js": "wp-scripts lint-js",
 		"packages-update": "wp-scripts packages-update",
-		"plugin-zip": "git archive --format=zip --output=bfcache.zip HEAD",
+		"plugin-zip": "git archive --format=zip --output=nocache-bfcache.zip HEAD",
 		"prepare": "husky"
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Back/Forward Cache (bfcache)
- * Plugin URI: https://github.com/westonruter/bfcache
+ * Plugin Name: No-cache BFCache
+ * Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent.
  * Requires at least: 6.8
  * Requires PHP: 7.2
@@ -10,14 +10,14 @@
  * Author URI: https://weston.ruter.net/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * Update URI: https://github.com/westonruter/bfcache
- * GitHub Plugin URI: https://github.com/westonruter/bfcache
+ * Update URI: https://github.com/westonruter/nocache-bfcache
+ * GitHub Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Primary Branch: main
  *
- * @package WestonRuter\Bfcache
+ * @package WestonRuter\NocacheBFCache
  */
 
-namespace WestonRuter\Bfcache;
+namespace WestonRuter\NocacheBFCache;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
@@ -206,11 +206,11 @@ function enqueue_script_module(): void {
 		return;
 	}
 
-	$module_id = '@westonruter/bfcache';
+	$module_id = '@westonruter/bfcache-invalidation';
 
 	wp_enqueue_script_module(
 		$module_id,
-		plugins_url( 'bfcache.js', __FILE__ ),
+		plugins_url( 'bfcache-invalidation.js', __FILE__ ),
 		array(),
 		VERSION
 	);

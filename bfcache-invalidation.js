@@ -1,7 +1,9 @@
 // This is a JavaScript module, so the global namespace is not polluted.
 
 const script = /** @type {HTMLScriptElement} */ (
-	document.getElementById( 'wp-script-module-data-@westonruter/bfcache' )
+	document.getElementById(
+		'wp-script-module-data-@westonruter/bfcache-invalidation'
+	)
 );
 
 /**

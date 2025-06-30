@@ -1,4 +1,4 @@
-# Back/Forward Cache (bfcache) #
+# No-cache BFCache #
 
 Contributors: [westonruter](https://profile.wordpress.org/westonruter)  
 Tested up to: 6.8  
@@ -10,7 +10,7 @@ Tags:         performance
 
 Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent.
 
-Normally WordPress sends a `Cache-Control` header with the `no-store` directive when logged in. This has the effect of [breaking the browser's bfcache](https://web.dev/articles/bfcache#minimize-no-store), which means that navigating back or forward in the browser requires the pages to be re-fetched from the server and for any JavaScript on the page to re-execute. The result can be a sluggish navigation experience not only when navigating around the WP Admin but also potentially when navigating around the frontend of a site.
+Normally WordPress sends a `Cache-Control` header with the `no-store` directive when logged in. This has the effect of [breaking the browser's bfcache](https://web.dev/articles/bfcache#minimize-no-store), which means that navigating back or forward in the browser requires the pages to be re-fetched from the server and for any JavaScript on the page to re-execute. The result can be a sluggish navigation experience not only when navigating around the WP Admin but also potentially when navigating around the frontend of a site. Furthermore, the lack of bfcache can result in data loss when data has been entered via a JavaScript-built UI since this state is lost when a page is not restored via bfcache. (See [demo video](https://github.com/woocommerce/woocommerce/pull/58445#issuecomment-3014404754) in WooCommerce.)
 
 Note that Chrome [may now](https://developer.chrome.com/docs/web-platform/bfcache-ccns) still serve pages served with `no-store` from bfcache, although there are still failure scenarios in which bfcache will still be blocked. These can be observed in the "Back/forward cache" panel in the Application tab of Chrome DevTools, for example:
 
@@ -49,7 +49,7 @@ Relevant core tickets that this revisits:
 1. Download the plugin [ZIP from GitHub](https://github.com/westonruter/bfcache/archive/refs/heads/main.zip) or if you have a local clone of the repo, run `npm run plugin-zip`.
 2. Visit **Plugins > Add New Plugin** in the WordPress Admin.
 3. Click **Upload Plugin**.
-4. Select the `bfcache.zip` file on your system from step 1 and click **Install Now**.
+4. Select the `nocache-bfcache.zip` file on your system from step 1 and click **Install Now**.
 5. Click the **Activate Plugin** button.
 
 You may also install and update via [Git Updater](https://git-updater.com/).
