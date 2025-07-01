@@ -300,7 +300,7 @@ function print_js_enabled_login_form_field(): void {
 		document.getElementById( 'loginform' ).appendChild( input );
 	</script>
 	<?php
-	print_inline_script_module_from_html_script_tag( (string) ob_get_clean() );
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
 }
 
 add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
@@ -328,7 +328,7 @@ function print_interim_login_script(): void {
 		bc.postMessage( { authenticated } );
 	</script>
 	<?php
-	print_inline_script_module_from_html_script_tag( (string) ob_get_clean() );
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
 }
 
 add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
@@ -337,8 +337,8 @@ add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
  * Adds missing hooks to print script modules in the Customizer if they are not present.
  *
  * @since 1.0.0
- * @see \WP_Script_Modules::add_hooks()
  * @access private
+ * @see \WP_Script_Modules::add_hooks()
  */
 function add_script_modules_customizer_hooks(): void {
 	$action  = 'customize_controls_print_footer_scripts';
@@ -362,23 +362,38 @@ add_action(
 );
 
 /**
- * Prints an inline script module from an HTML script tag.
+ * Prints an inline script tag from an HTML script tag.
  *
  * This is used to make sure the script contents are printed via `wp_print_inline_script_tag()` so that filters may
  * inject additional attributes into the SCRIPT tag, such as used for CSP. The HTML markup is used inline in the PHP
  * in order for IDEs to provide static analysis.
  *
  * @since 1.1.0
- * @see \wp_remove_surrounding_empty_script_tags()
  * @access private
+ * @see \wp_remove_surrounding_empty_script_tags()
  *
  * @param string $script Script contents.
  */
-function print_inline_script_module_from_html_script_tag( string $script ): void {
+function print_inline_script_tag_from_html( string $script ): void {
 	$p = new WP_HTML_Tag_Processor( $script );
-	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
+	if ( ! $p->next_tag( array( 'tag_name' => 'SCRIPT' ) ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'No SCRIPT tag found.', 'nocache-bfcache' ), 'nocache-bfcache 1.1.0' );
+		return;
+	}
+	$attributes = array();
+	$attr_names = $p->get_attribute_names_with_prefix( '' );
+	if ( is_array( $attr_names ) ) {
+		foreach ( $attr_names as $name ) {
+			if ( is_string( $name ) ) { // TODO: This type check should not be required in core. The get_attribute_names_with_prefix() return value should be string[]|null instead of array|null.
+				$attributes[ $name ] = $p->get_attribute( $name );
+			}
+		}
+	}
 	wp_print_inline_script_tag(
 		$p->get_modifiable_text(),
-		array( 'type' => 'module' )
+		$attributes
 	);
+	if ( $p->next_tag() ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Only one tag may be supplied.', 'nocache-bfcache' ), 'nocache-bfcache 1.1.0' );
+	}
 }
