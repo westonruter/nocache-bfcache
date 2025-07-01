@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
 }
 
-// Abort plugin if the core patch has been applied.
+// Abort executing the plugin if the core patch has been applied.
 if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_bfcache_script_module' ) ) {
 	return;
 }
@@ -43,6 +43,13 @@ const VERSION = '1.0.0';
  * @var string
  */
 const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
+
+/**
+ * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
+ *
+ * @var string
+ */
+const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
 
 /**
  * Gets the name for the cookie which contains a session token for the bfcache.
@@ -83,6 +90,13 @@ function filter_nocache_headers( $headers ): array {
 	// is merged. So this function will automatically replace the `no-store` directive, if present, with alternate
 	// directives that prevent caching in proxies (especially `private`) without breaking the browser's bfcache.
 	if ( ! isset( $headers['Cache-Control'] ) || ! is_string( $headers['Cache-Control'] ) ) {
+		return $headers;
+	}
+
+	// If the bfcache session token cookie has not been set, then this is an indication that JavaScript is not enabled.
+	// When JavaScript is disabled, the `no-store` directive is kept to preserve the privacy of authenticated pages in
+	// the browser history. This is because only when JavaScript is enabled can pages in bfcache be invalidated.
+	if ( ! isset( $_COOKIE[ get_bfcache_session_token_cookie_name() ] ) ) {
 		return $headers;
 	}
 
@@ -168,6 +182,12 @@ function generate_bfcache_session_token(): string {
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme ): void {
 	unset( $logged_in_cookie, $expiration, $user_id, $scheme ); // Unused args.
 
+	// Do not set the cookie if the user does not have JavaScript enabled, since only JS can invalidate bfcache.
+	// For users with JavaScript disabled, they will retain the `no-store` directive on Cache-Control to protect privacy.
+	if ( ! isset( $_POST[ JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return;
+	}
+
 	$cookie_name   = get_bfcache_session_token_cookie_name();
 	$session_token = generate_bfcache_session_token();
 
@@ -244,6 +264,36 @@ function export_script_module_data(): array {
 		'debug'                            => WP_DEBUG,
 	);
 }
+
+/**
+ * Prints a hidden input field in the login form when JavaScript is enabled.
+ *
+ * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
+ * the `no-store` directive be removed from the `Cache-Control` response header. This is important because the pages in
+ * bfcache can only be invalidated (once the user logs out) when JavaScript is enabled.
+ *
+ * @since 1.1.0
+ */
+function print_js_enabled_login_form_field(): void {
+	ob_start();
+	?>
+	<script type="module">
+		const input = document.createElement( 'input' );
+		input.type = 'hidden';
+		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
+		input.value = '1';
+		document.getElementById( 'loginform' ).appendChild( input );
+	</script>
+	<?php
+	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
+	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
+	wp_print_inline_script_tag(
+		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
+		array( 'type' => 'module' )
+	);
+}
+
+add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
 
 /**
  * Prints a script on the interim login screen to broadcast when needing to re-authenticate and when re-authentication was successful.
