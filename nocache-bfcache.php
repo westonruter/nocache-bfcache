@@ -241,6 +241,7 @@ function export_script_module_data(): array {
 	return array(
 		'cookieName'                       => get_bfcache_session_token_cookie_name(),
 		'interimLoginBroadcastChannelName' => INTERIM_LOGIN_BROADCAST_CHANNEL_NAME,
+		'debug'                            => WP_DEBUG,
 	);
 }
 
