@@ -60,6 +60,7 @@ interimLoginBroadcastChannel.addEventListener( 'message', () => {
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
 function onPageShow( event ) {
+	// TODO: The persisted property is not actually relevant because it is not true when a closed tab is restored.
 	if ( event.persisted && getCurrentSessionToken() !== latestSessionToken ) {
 		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
 		document.body.innerHTML = '';
@@ -70,3 +71,5 @@ function onPageShow( event ) {
 }
 
 window.addEventListener( 'pageshow', onPageShow );
+
+// TODO: If WP_DEBUG enabled, log out the bfcache restore reasons.
