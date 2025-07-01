@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
 }
 
-// Abort plugin if the core patch has been applied.
+// Abort executing the plugin if the core patch has been applied.
 if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_bfcache_script_module' ) ) {
 	return;
 }
@@ -33,6 +33,8 @@ use WP_HTML_Tag_Processor;
 /**
  * Version.
  *
+ * @since 1.0.0
+ * @access private
  * @var string
  */
 const VERSION = '1.0.0';
@@ -40,9 +42,20 @@ const VERSION = '1.0.0';
 /**
  * Broadcast channel name for the interim login (wp-auth-check) modal.
  *
+ * @since 1.1.0
+ * @access private
  * @var string
  */
 const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
+
+/**
+ * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
 
 /**
  * Gets the name for the cookie which contains a session token for the bfcache.
@@ -50,6 +63,7 @@ const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
  * This incorporates the `COOKIEHASH` to prevent cookie collisions on multisite subdirectory installs.
  *
  * @since 1.0.0
+ * @access private
  *
  * @link https://core.trac.wordpress.org/ticket/29095
  * @return non-empty-string Cookie name.
@@ -62,6 +76,7 @@ function get_bfcache_session_token_cookie_name(): string {
  * Filters nocache_headers to remove the no-store directive.
  *
  * @since 1.0.0
+ * @access private
  *
  * @link https://core.trac.wordpress.org/ticket/21938#comment:47
  * @param array<string, string>|mixed $headers Header names and field values.
@@ -83,6 +98,13 @@ function filter_nocache_headers( $headers ): array {
 	// is merged. So this function will automatically replace the `no-store` directive, if present, with alternate
 	// directives that prevent caching in proxies (especially `private`) without breaking the browser's bfcache.
 	if ( ! isset( $headers['Cache-Control'] ) || ! is_string( $headers['Cache-Control'] ) ) {
+		return $headers;
+	}
+
+	// If the bfcache session token cookie has not been set, then this is an indication that JavaScript is not enabled.
+	// When JavaScript is disabled, the `no-store` directive is kept to preserve the privacy of authenticated pages in
+	// the browser history. This is because only when JavaScript is enabled can pages in bfcache be invalidated.
+	if ( ! isset( $_COOKIE[ get_bfcache_session_token_cookie_name() ] ) ) {
 		return $headers;
 	}
 
@@ -137,6 +159,7 @@ add_filter(
  * navigate to an authenticated page via bfcache. By having the cookie value being random, then this risk is eliminated.
  *
  * @since 1.0.0
+ * @access private
  * @see \WP_Session_Tokens::create()
  *
  * @return non-empty-string Session token.
@@ -155,6 +178,7 @@ function generate_bfcache_session_token(): string {
  * Sets a cookie containing a bfcache session token when a user logs in.
  *
  * @since 1.0.0
+ * @access private
  * @see \wp_set_auth_cookie()
  *
  * @param string $logged_in_cookie The logged-in cookie value.
@@ -167,6 +191,12 @@ function generate_bfcache_session_token(): string {
  */
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme ): void {
 	unset( $logged_in_cookie, $expiration, $user_id, $scheme ); // Unused args.
+
+	// Do not set the cookie if the user does not have JavaScript enabled, since only JS can invalidate bfcache.
+	// For users with JavaScript disabled, they will retain the `no-store` directive on Cache-Control to protect privacy.
+	if ( ! isset( $_POST[ JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		return;
+	}
 
 	$cookie_name   = get_bfcache_session_token_cookie_name();
 	$session_token = generate_bfcache_session_token();
@@ -191,6 +221,7 @@ add_action(
  * Clears the bfcache session token cookie when logging out.
  *
  * @since 1.0.0
+ * @access private
  * @see \wp_clear_auth_cookie()
  */
 function clear_logged_in_cookie(): void {
@@ -209,6 +240,7 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
  * session token cookie has changed due to the user logging out or logging in as another user.
  *
  * @since 1.0.0
+ * @access private
  */
 function enqueue_script_module(): void {
 	if ( ! is_user_logged_in() ) {
@@ -235,6 +267,8 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * Exports script module data.
  *
  * @since 1.0.0
+ * @access private
+ *
  * @return array{ cookieName: non-empty-string, interimLoginBroadcastChannelName: non-empty-string } Data.
  */
 function export_script_module_data(): array {
@@ -246,6 +280,32 @@ function export_script_module_data(): array {
 }
 
 /**
+ * Prints a hidden input field in the login form when JavaScript is enabled.
+ *
+ * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
+ * the `no-store` directive be removed from the `Cache-Control` response header. This is important because the pages in
+ * bfcache can only be invalidated (once the user logs out) when JavaScript is enabled.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function print_js_enabled_login_form_field(): void {
+	ob_start();
+	?>
+	<script type="module">
+		const input = document.createElement( 'input' );
+		input.type = 'hidden';
+		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
+		input.value = '1';
+		document.getElementById( 'loginform' ).appendChild( input );
+	</script>
+	<?php
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
+}
+
+add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
+
+/**
  * Prints a script on the interim login screen to broadcast when needing to re-authenticate and when re-authentication was successful.
  *
  * This is needed because wp-auth-check heartbeat tick isn't suitable for listening for when the session expires
@@ -253,6 +313,7 @@ function export_script_module_data(): array {
  * pages from bfcache.
  *
  * @since 1.1.0
+ * @access private
  */
 function print_interim_login_script(): void {
 	global $interim_login;
@@ -267,12 +328,7 @@ function print_interim_login_script(): void {
 		bc.postMessage( { authenticated } );
 	</script>
 	<?php
-	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
-	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
-	wp_print_inline_script_tag(
-		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
-		array( 'type' => 'module' )
-	);
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
 }
 
 add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
@@ -281,6 +337,7 @@ add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
  * Adds missing hooks to print script modules in the Customizer if they are not present.
  *
  * @since 1.0.0
+ * @access private
  * @see \WP_Script_Modules::add_hooks()
  */
 function add_script_modules_customizer_hooks(): void {
@@ -303,3 +360,40 @@ add_action(
 	__NAMESPACE__ . '\add_script_modules_customizer_hooks',
 	100 // Core does this at priority 10.
 );
+
+/**
+ * Prints an inline script tag from an HTML script tag.
+ *
+ * This is used to make sure the script contents are printed via `wp_print_inline_script_tag()` so that filters may
+ * inject additional attributes into the SCRIPT tag, such as used for CSP. The HTML markup is used inline in the PHP
+ * in order for IDEs to provide static analysis.
+ *
+ * @since 1.1.0
+ * @access private
+ * @see \wp_remove_surrounding_empty_script_tags()
+ *
+ * @param string $script Script contents.
+ */
+function print_inline_script_tag_from_html( string $script ): void {
+	$p = new WP_HTML_Tag_Processor( $script );
+	if ( ! $p->next_tag( array( 'tag_name' => 'SCRIPT' ) ) ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'No SCRIPT tag found.', 'nocache-bfcache' ), 'nocache-bfcache 1.1.0' );
+		return;
+	}
+	$attributes = array();
+	$attr_names = $p->get_attribute_names_with_prefix( '' );
+	if ( is_array( $attr_names ) ) {
+		foreach ( $attr_names as $name ) {
+			if ( is_string( $name ) ) { // TODO: This type check should not be required in core. The get_attribute_names_with_prefix() return value should be string[]|null instead of array|null.
+				$attributes[ $name ] = $p->get_attribute( $name );
+			}
+		}
+	}
+	wp_print_inline_script_tag(
+		$p->get_modifiable_text(),
+		$attributes
+	);
+	if ( $p->next_tag() ) {
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Only one tag may be supplied.', 'nocache-bfcache' ), 'nocache-bfcache 1.1.0' );
+	}
+}
