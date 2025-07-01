@@ -12,6 +12,7 @@ const script = /** @type {HTMLScriptElement} */ (
  * @type {{
  *     cookieName: string,
  *     interimLoginBroadcastChannelName: string,
+ *     debug: boolean,
  * }}
  */
 const data = JSON.parse( script.text );
@@ -77,4 +78,16 @@ function onPageShow( event ) {
 
 window.addEventListener( 'pageshow', onPageShow );
 
-// TODO: If WP_DEBUG enabled, log out the bfcache restore reasons.
+if ( data.debug ) {
+	for ( const entry of performance.getEntriesByType( 'navigation' ) ) {
+		if (
+			'notRestoredReasons' in entry &&
+			null !== entry.notRestoredReasons
+		) {
+			window.console.warn(
+				'[No-cache BFCache] Reasons page navigation not restored from bfcache:',
+				entry.notRestoredReasons
+			);
+		}
+	}
+}
