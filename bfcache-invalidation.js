@@ -78,16 +78,16 @@ function onPageShow( event ) {
 
 window.addEventListener( 'pageshow', onPageShow );
 
+// Log out reasons for why the page was not restored from bfcache when WP_DEBUG is enabled.
 if ( data.debug ) {
-	for ( const entry of performance.getEntriesByType( 'navigation' ) ) {
-		if (
-			'notRestoredReasons' in entry &&
-			null !== entry.notRestoredReasons
-		) {
-			window.console.warn(
-				'[No-cache BFCache] Reasons page navigation not restored from bfcache:',
-				entry.notRestoredReasons
-			);
-		}
+	const [ navigationEntry ] = performance.getEntriesByType( 'navigation' );
+	if (
+		'notRestoredReasons' in navigationEntry &&
+		null !== navigationEntry.notRestoredReasons
+	) {
+		window.console.warn(
+			'[No-cache BFCache] Reasons page navigation not restored from bfcache:',
+			navigationEntry.notRestoredReasons
+		);
 	}
 }
