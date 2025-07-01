@@ -1,6 +1,6 @@
 // This is a JavaScript module, so the global namespace is not polluted.
 
-const script = /** @type {HTMLScriptElement} */ (
+const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById(
 		'wp-script-module-data-@westonruter/bfcache-invalidation'
 	)
@@ -15,7 +15,7 @@ const script = /** @type {HTMLScriptElement} */ (
  *     debug: boolean,
  * }}
  */
-const data = JSON.parse( script.text );
+const data = JSON.parse( jsonScript.text );
 
 /**
  * Gets the current bfcache session token from a cookie.
