@@ -28,6 +28,8 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 	return;
 }
 
+use WP_HTML_Tag_Processor;
+
 /**
  * Version.
  *
@@ -258,14 +260,16 @@ function print_interim_login_script(): void {
 	}
 	ob_start();
 	?>
-	<script>
+	<script type="module">
 		const authenticated = document.body.classList.contains( 'interim-login-success' );
 		const bc = new BroadcastChannel( <?php echo wp_json_encode( INTERIM_LOGIN_BROADCAST_CHANNEL_NAME ); ?> );
 		bc.postMessage( { authenticated } );
 	</script>
 	<?php
+	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
+	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
 	wp_print_inline_script_tag(
-		str_replace( array( '<script>', '</script>' ), '', (string) ob_get_clean() ), // i.e. wp_remove_surrounding_empty_script_tags().
+		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
 		array( 'type' => 'module' )
 	);
 }
