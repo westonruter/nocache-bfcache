@@ -235,6 +235,36 @@ function export_script_module_data(): array {
 }
 
 /**
+ * Prints a script on the interim login screen to broadcast when needing to re-authenticate and when re-authentication was successful.
+ *
+ * This is needed because wp-auth-check heartbeat tick isn't suitable for listening for when the session expires
+ * and when the session re-auth has been successful. Also, BroadcastChannel has the additional benefit of invalidating
+ * pages from bfcache.
+ *
+ * @since 1.1.0
+ */
+function print_interim_login_script(): void {
+	global $interim_login;
+	if ( ! $interim_login ) {
+		return;
+	}
+	ob_start();
+	?>
+	<script>
+		const authenticated = document.body.classList.contains( 'interim-login-success' );
+		const bc = new BroadcastChannel( 'nocache_bfcache_interim_login' );
+		bc.postMessage( { authenticated } );
+	</script>
+	<?php
+	wp_print_inline_script_tag(
+		wp_remove_surrounding_empty_script_tags( (string) ob_get_clean() ),
+		array( 'type' => 'module' )
+	);
+}
+
+add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
+
+/**
  * Adds missing hooks to print script modules in the Customizer if they are not present.
  *
  * @since 1.0.0
