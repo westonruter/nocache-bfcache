@@ -12,6 +12,7 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
  * @type {{
  *     cookieName: string,
  *     interimLoginBroadcastChannelName: string,
+ *     latestSessionTokenInputFieldName: string,
  *     debug: boolean,
  * }}
  */
@@ -33,9 +34,28 @@ function getCurrentSessionToken() {
 	return matches ? decodeURIComponent( matches[ 1 ] ) : null;
 }
 
-let latestSessionToken = getCurrentSessionToken();
+/**
+ * Hidden input field that contains the bfcache session token.
+ *
+ * A hidden input field is used as opposed to a local variable because when a page is restored from a closed tab, the
+ * JavaScript state will not be restored in the same way as when a page is restored from bfcache. With bfcache, a
+ * complete snapshot of the page is stored in memory, including the JavaScript heap. In contrast, when a page is restored
+ * from a closed tab (or when navigating history without bfcache), the page is re-constructed from the HTTP cache, with
+ * one exception: modifications to input fields tend to persist. So by storing the bfcache session token in a hidden
+ * input, then when a page is restored from both bfcache and reopening a closed tab, the value should be available
+ * to compare with the current bfcache session token. If the token no longer matches, then the page is reloaded.
+ *
+ * TODO: Modifications to input fields persist in Chrome and Firefox, but not Safari when re-opening a closed tab.
+ *
+ * @type {HTMLInputElement}
+ */
+const latestSessionTokenInputField = /** @type {HTMLInputElement} */ (
+	document.getElementById( data.latestSessionTokenInputFieldName )
+);
 
-/*
+/**
+ * Broadcast channel which listens to updates from the interim login screen.
+ *
  * Make sure that the bfcache session token is updated whenever the interim login is shown or successfully closed.
  * A message to the 'nocache_bfcache_interim_login' BroadcastChannel is sent at the `login_footer` action for the
  * interim login screen. A message is sent when a login is prompted due to the session expiring, and another message is
@@ -52,27 +72,52 @@ let latestSessionToken = getCurrentSessionToken();
  * "broadcastchannel-message" blocking reason. See: <https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message>.
  *
  * TODO: The wp-auth-check iframe should be made inert when it is hidden. Currently the back button seems to be navigating in the iframe after re-auth.
+ *
+ * @type {BroadcastChannel}
  */
 const interimLoginBroadcastChannel = new window.BroadcastChannel(
 	data.interimLoginBroadcastChannelName
 );
 interimLoginBroadcastChannel.addEventListener( 'message', () => {
-	latestSessionToken = getCurrentSessionToken();
+	latestSessionTokenInputField.value = String( getCurrentSessionToken() );
 } );
 
 /**
- * Reloads the page when navigating to a page via bfcache and the authentication state has changed.
+ * Reloads the page when navigating to a page via bfcache or via re-opening a closed tab, and the session has changed.
  *
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
 function onPageShow( event ) {
-	// TODO: The persisted property is not actually relevant because it is not true when a closed tab is restored.
-	if ( event.persisted && getCurrentSessionToken() !== latestSessionToken ) {
-		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
-		document.body.innerHTML = '';
+	window.console.info( 'pageshow, persisted:', event.persisted ); // TODO: Debug.
 
-		// TODO: Could there be a scenario where an infinite reload happens? No, because the pageshow event would not have the persisted property set to true after a reload.
-		window.location.reload();
+	const currentSessionTokenString = String( getCurrentSessionToken() );
+
+	// If the hidden field was populated, then we know the page was either restored from bfcache or from a closed tab.
+	// In the case of bfcache, the event.persisted property is true, and a local variable could be looked at, but this
+	// is not the case for a page restored from a closed tab. However, a browser does preserve the contents of an input
+	// field when a tab is restored.
+	if ( latestSessionTokenInputField.value ) {
+		latestSessionTokenInputField.style.borderColor = 'green'; // TODO: Debug.
+
+		// If the value does not match the current session token, then the authentication state has changed and the page
+		// needs to be reloaded.
+		if (
+			latestSessionTokenInputField.value !== currentSessionTokenString
+		) {
+			// Clear out the field to prevent an infinite reload in Firefox, because Firefox persists the value of inputs across reloads, whereas Chrome and Safari do not.
+			latestSessionTokenInputField.value = '';
+
+			// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
+			document.body.innerHTML = '';
+
+			window.location.reload();
+		}
+	} else {
+		latestSessionTokenInputField.style.borderColor = 'red'; // TODO: Debug.
+
+		// Otherwise, populate the hidden field with the current session token so that it will be available going
+		// forward when this page is restored from bfcache or the page is restored from a closed tab.
+		latestSessionTokenInputField.value = currentSessionTokenString;
 	}
 }
 

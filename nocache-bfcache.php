@@ -58,6 +58,17 @@ const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
 const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
 
 /**
+ * Name for the hidden input field that stores the latest bfcache session token.
+ *
+ * Browsers will (sometimes?) preserve the content of input fields when restoring a closed tab.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const LATEST_SESSION_TOKEN_INPUT_FIELD = 'nocache_bfcache_latest_session_token';
+
+/**
  * Gets the name for the cookie which contains a session token for the bfcache.
  *
  * This incorporates the `COOKIEHASH` to prevent cookie collisions on multisite subdirectory installs.
@@ -244,7 +255,7 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
  */
 function enqueue_script_module(): void {
 	if ( ! is_user_logged_in() ) {
-		return;
+		return; // TODO: This isn't right. The logic should run whenever the response would have originally had `no-store`, not whether the user was logged-in.
 	}
 
 	$module_id = '@westonruter/bfcache-invalidation';
@@ -264,6 +275,24 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
 }
 
 /**
+ * Prints a hidden input field to store the bfcache session token to handle the scenario where a closed tab is re-opened.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function print_bfcache_session_token_field(): void {
+	if ( ! is_user_logged_in() ) {
+		return; // TODO: This isn't right. The logic should run whenever the response would have originally had `no-store`, not whether the user was logged-in.
+	}
+	?>
+	<input id="<?php echo esc_attr( LATEST_SESSION_TOKEN_INPUT_FIELD ); ?>" type="text" value="" style="position: fixed; bottom: 0; right: 0; z-index: 10000;">
+	<?php
+}
+foreach ( array( 'wp_footer', 'admin_footer', 'customize_controls_print_footer_scripts' ) as $_action ) {
+	add_action( $_action, __NAMESPACE__ . '\print_bfcache_session_token_field' );
+}
+
+/**
  * Exports script module data.
  *
  * @since 1.0.0
@@ -275,6 +304,7 @@ function export_script_module_data(): array {
 	return array(
 		'cookieName'                       => get_bfcache_session_token_cookie_name(),
 		'interimLoginBroadcastChannelName' => INTERIM_LOGIN_BROADCAST_CHANNEL_NAME,
+		'latestSessionTokenInputFieldName' => LATEST_SESSION_TOKEN_INPUT_FIELD,
 		'debug'                            => WP_DEBUG,
 	);
 }
