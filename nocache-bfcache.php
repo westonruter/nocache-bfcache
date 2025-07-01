@@ -36,6 +36,13 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 const VERSION = '1.0.0';
 
 /**
+ * Broadcast channel name for the interim login (wp-auth-check) modal.
+ *
+ * @var string
+ */
+const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
+
+/**
  * Gets the name for the cookie which contains a session token for the bfcache.
  *
  * This incorporates the `COOKIEHASH` to prevent cookie collisions on multisite subdirectory installs.
@@ -226,11 +233,12 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * Exports script module data.
  *
  * @since 1.0.0
- * @return array{ cookieName: non-empty-string } Data.
+ * @return array{ cookieName: non-empty-string, interimLoginBroadcastChannelName: non-empty-string } Data.
  */
 function export_script_module_data(): array {
 	return array(
-		'cookieName' => get_bfcache_session_token_cookie_name(),
+		'cookieName'                       => get_bfcache_session_token_cookie_name(),
+		'interimLoginBroadcastChannelName' => INTERIM_LOGIN_BROADCAST_CHANNEL_NAME,
 	);
 }
 
@@ -252,12 +260,12 @@ function print_interim_login_script(): void {
 	?>
 	<script>
 		const authenticated = document.body.classList.contains( 'interim-login-success' );
-		const bc = new BroadcastChannel( 'nocache_bfcache_interim_login' );
+		const bc = new BroadcastChannel( <?php echo wp_json_encode( INTERIM_LOGIN_BROADCAST_CHANNEL_NAME ); ?> );
 		bc.postMessage( { authenticated } );
 	</script>
 	<?php
 	wp_print_inline_script_tag(
-		wp_remove_surrounding_empty_script_tags( (string) ob_get_clean() ),
+		str_replace( array( '<script>', '</script>' ), '', (string) ob_get_clean() ), // i.e. wp_remove_surrounding_empty_script_tags().
 		array( 'type' => 'module' )
 	);
 }

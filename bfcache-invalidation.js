@@ -9,7 +9,10 @@ const script = /** @type {HTMLScriptElement} */ (
 /**
  * Exports from PHP.
  *
- * @type {{cookieName: string}}
+ * @type {{
+ *     cookieName: string,
+ *     interimLoginBroadcastChannelName: string,
+ * }}
  */
 const data = JSON.parse( script.text );
 
@@ -46,9 +49,11 @@ let latestSessionToken = getCurrentSessionToken();
  * bfcache would not match the current session token. In Chrome DevTools, the bfcache error code here is
  * `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
  * "broadcastchannel-message" blocking reason. See: <https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message>.
+ *
+ * TODO: The wp-auth-check iframe should be made inert when it is hidden. Currently the back button seems to be navigating in the iframe after re-auth.
  */
 const interimLoginBroadcastChannel = new BroadcastChannel(
-	'nocache_bfcache_interim_login'
+	data.interimLoginBroadcastChannelName
 );
 interimLoginBroadcastChannel.addEventListener( 'message', () => {
 	latestSessionToken = getCurrentSessionToken();
