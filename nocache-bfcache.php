@@ -33,6 +33,8 @@ use WP_HTML_Tag_Processor;
 /**
  * Version.
  *
+ * @since 1.0.0
+ * @access private
  * @var string
  */
 const VERSION = '1.0.0';
@@ -40,6 +42,8 @@ const VERSION = '1.0.0';
 /**
  * Broadcast channel name for the interim login (wp-auth-check) modal.
  *
+ * @since 1.1.0
+ * @access private
  * @var string
  */
 const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
@@ -47,6 +51,8 @@ const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
 /**
  * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
  *
+ * @since 1.1.0
+ * @access private
  * @var string
  */
 const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
@@ -57,6 +63,7 @@ const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled'
  * This incorporates the `COOKIEHASH` to prevent cookie collisions on multisite subdirectory installs.
  *
  * @since 1.0.0
+ * @access private
  *
  * @link https://core.trac.wordpress.org/ticket/29095
  * @return non-empty-string Cookie name.
@@ -69,6 +76,7 @@ function get_bfcache_session_token_cookie_name(): string {
  * Filters nocache_headers to remove the no-store directive.
  *
  * @since 1.0.0
+ * @access private
  *
  * @link https://core.trac.wordpress.org/ticket/21938#comment:47
  * @param array<string, string>|mixed $headers Header names and field values.
@@ -151,6 +159,7 @@ add_filter(
  * navigate to an authenticated page via bfcache. By having the cookie value being random, then this risk is eliminated.
  *
  * @since 1.0.0
+ * @access private
  * @see \WP_Session_Tokens::create()
  *
  * @return non-empty-string Session token.
@@ -169,6 +178,7 @@ function generate_bfcache_session_token(): string {
  * Sets a cookie containing a bfcache session token when a user logs in.
  *
  * @since 1.0.0
+ * @access private
  * @see \wp_set_auth_cookie()
  *
  * @param string $logged_in_cookie The logged-in cookie value.
@@ -211,6 +221,7 @@ add_action(
  * Clears the bfcache session token cookie when logging out.
  *
  * @since 1.0.0
+ * @access private
  * @see \wp_clear_auth_cookie()
  */
 function clear_logged_in_cookie(): void {
@@ -229,6 +240,7 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
  * session token cookie has changed due to the user logging out or logging in as another user.
  *
  * @since 1.0.0
+ * @access private
  */
 function enqueue_script_module(): void {
 	if ( ! is_user_logged_in() ) {
@@ -255,6 +267,8 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * Exports script module data.
  *
  * @since 1.0.0
+ * @access private
+ *
  * @return array{ cookieName: non-empty-string, interimLoginBroadcastChannelName: non-empty-string } Data.
  */
 function export_script_module_data(): array {
@@ -273,6 +287,7 @@ function export_script_module_data(): array {
  * bfcache can only be invalidated (once the user logs out) when JavaScript is enabled.
  *
  * @since 1.1.0
+ * @access private
  */
 function print_js_enabled_login_form_field(): void {
 	ob_start();
@@ -285,12 +300,7 @@ function print_js_enabled_login_form_field(): void {
 		document.getElementById( 'loginform' ).appendChild( input );
 	</script>
 	<?php
-	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
-	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
-	wp_print_inline_script_tag(
-		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
-		array( 'type' => 'module' )
-	);
+	print_inline_script_module_from_html_script_tag( (string) ob_get_clean() );
 }
 
 add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
@@ -303,6 +313,7 @@ add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' )
  * pages from bfcache.
  *
  * @since 1.1.0
+ * @access private
  */
 function print_interim_login_script(): void {
 	global $interim_login;
@@ -317,12 +328,7 @@ function print_interim_login_script(): void {
 		bc.postMessage( { authenticated } );
 	</script>
 	<?php
-	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
-	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
-	wp_print_inline_script_tag(
-		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
-		array( 'type' => 'module' )
-	);
+	print_inline_script_module_from_html_script_tag( (string) ob_get_clean() );
 }
 
 add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
@@ -332,6 +338,7 @@ add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
  *
  * @since 1.0.0
  * @see \WP_Script_Modules::add_hooks()
+ * @access private
  */
 function add_script_modules_customizer_hooks(): void {
 	$action  = 'customize_controls_print_footer_scripts';
@@ -353,3 +360,25 @@ add_action(
 	__NAMESPACE__ . '\add_script_modules_customizer_hooks',
 	100 // Core does this at priority 10.
 );
+
+/**
+ * Prints an inline script module from an HTML script tag.
+ *
+ * This is used to make sure the script contents are printed via `wp_print_inline_script_tag()` so that filters may
+ * inject additional attributes into the SCRIPT tag, such as used for CSP. The HTML markup is used inline in the PHP
+ * in order for IDEs to provide static analysis.
+ *
+ * @since 1.1.0
+ * @see \wp_remove_surrounding_empty_script_tags()
+ * @access private
+ *
+ * @param string $script Script contents.
+ */
+function print_inline_script_module_from_html_script_tag( string $script ): void {
+	$p = new WP_HTML_Tag_Processor( $script );
+	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
+	wp_print_inline_script_tag(
+		$p->get_modifiable_text(),
+		array( 'type' => 'module' )
+	);
+}
