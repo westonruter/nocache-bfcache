@@ -20,23 +20,5 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "git archive --format=zip --output=nocache-bfcache.zip HEAD",
 		"prepare": "husky"
-	},
-	"jshintConfig": {
-		"boss": true,
-		"curly": true,
-		"eqeqeq": true,
-		"eqnull": true,
-		"esversion": 10,
-		"expr": true,
-		"immed": true,
-		"noarg": true,
-		"nonbsp": true,
-		"quotmark": "single",
-		"undef": true,
-		"unused": true,
-		"browser": true,
-		"globals": {
-			"BroadcastChannel": false
-		}
 	}
 }

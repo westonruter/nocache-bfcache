@@ -52,7 +52,7 @@ let latestSessionToken = getCurrentSessionToken();
  *
  * TODO: The wp-auth-check iframe should be made inert when it is hidden. Currently the back button seems to be navigating in the iframe after re-auth.
  */
-const interimLoginBroadcastChannel = new BroadcastChannel(
+const interimLoginBroadcastChannel = new window.BroadcastChannel(
 	data.interimLoginBroadcastChannelName
 );
 interimLoginBroadcastChannel.addEventListener( 'message', () => {
