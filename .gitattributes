@@ -1,8 +1,10 @@
 .editorconfig export-ignore
 .eslintrc.js export-ignore
 .gitattributes export-ignore
+.github .export-ignore
 .gitignore export-ignore
 .husky/ export-ignore
+.nvmrc export-ignore
 composer.json export-ignore
 composer.lock export-ignore
 lint-staged.config.js export-ignore
