@@ -28,12 +28,21 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 	return;
 }
 
+use WP_HTML_Tag_Processor;
+
 /**
  * Version.
  *
  * @var string
  */
 const VERSION = '1.0.0';
+
+/**
+ * Broadcast channel name for the interim login (wp-auth-check) modal.
+ *
+ * @var string
+ */
+const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
 
 /**
  * Gets the name for the cookie which contains a session token for the bfcache.
@@ -226,13 +235,46 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * Exports script module data.
  *
  * @since 1.0.0
- * @return array{ cookieName: non-empty-string } Data.
+ * @return array{ cookieName: non-empty-string, interimLoginBroadcastChannelName: non-empty-string } Data.
  */
 function export_script_module_data(): array {
 	return array(
-		'cookieName' => get_bfcache_session_token_cookie_name(),
+		'cookieName'                       => get_bfcache_session_token_cookie_name(),
+		'interimLoginBroadcastChannelName' => INTERIM_LOGIN_BROADCAST_CHANNEL_NAME,
 	);
 }
+
+/**
+ * Prints a script on the interim login screen to broadcast when needing to re-authenticate and when re-authentication was successful.
+ *
+ * This is needed because wp-auth-check heartbeat tick isn't suitable for listening for when the session expires
+ * and when the session re-auth has been successful. Also, BroadcastChannel has the additional benefit of invalidating
+ * pages from bfcache.
+ *
+ * @since 1.1.0
+ */
+function print_interim_login_script(): void {
+	global $interim_login;
+	if ( ! $interim_login ) {
+		return;
+	}
+	ob_start();
+	?>
+	<script type="module">
+		const authenticated = document.body.classList.contains( 'interim-login-success' );
+		const bc = new BroadcastChannel( <?php echo wp_json_encode( INTERIM_LOGIN_BROADCAST_CHANNEL_NAME ); ?> );
+		bc.postMessage( { authenticated } );
+	</script>
+	<?php
+	$p = new WP_HTML_Tag_Processor( (string) ob_get_clean() );
+	$p->next_tag( array( 'tag_name' => 'SCRIPT' ) );
+	wp_print_inline_script_tag(
+		$p->get_modifiable_text(), // i.e. wp_remove_surrounding_empty_script_tags().
+		array( 'type' => 'module' )
+	);
+}
+
+add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
 
 /**
  * Adds missing hooks to print script modules in the Customizer if they are not present.
