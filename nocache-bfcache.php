@@ -340,7 +340,7 @@ add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' )
  *
  * This is needed because wp-auth-check heartbeat tick isn't suitable for listening for when the session expires
  * and when the session re-auth has been successful. Also, BroadcastChannel has the additional benefit of invalidating
- * pages from bfcache.
+ * pages from bfcache in some browsers (e.g. Chrome) when a message is received.
  *
  * @since 1.1.0
  * @access private

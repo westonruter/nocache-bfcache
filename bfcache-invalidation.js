@@ -63,13 +63,16 @@ const latestSessionTokenInputField = /** @type {HTMLInputElement} */ (
  * we just need to read the cookie to get the current bfcache session token (which may be none).
  *
  * There is another benefit to the use of BroadcastChannel: when a page in bfcache receives a message from
- * BroadcastChannel, the page will automatically be blocked from being restored. This ensures that if another user logs
+ * BroadcastChannel, the page may be automatically be blocked from being restored. This ensures that if another user logs
  * in via the interim login, they are not able to go back to access an authenticated page for the previously
  * authenticated user. Otherwise, if the page wasn't already automatically invalidated from bfcache in this instance,
  * it would have been invalidated via the `pageshow` event below since the `latestSessionToken` in the frozen page in
  * bfcache would not match the current session token. In Chrome DevTools, the bfcache error code here is
  * `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
- * "broadcastchannel-message" blocking reason. See: <https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message>.
+ * "broadcastchannel-message" blocking reason. Chrome has implemented this.
+ *
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message}
+ * @see {@link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500}
  *
  * TODO: The wp-auth-check iframe should be made inert when it is hidden. Currently the back button seems to be navigating in the iframe after re-auth.
  *
