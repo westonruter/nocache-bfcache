@@ -49,6 +49,15 @@ const VERSION = '1.0.0';
 const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
 
 /**
+ * Action used for generating the nonce for bfcache.
+ *
+ * @since 1.1.0
+ * @access string
+ * @var string
+ */
+const BFCACHE_NONCE_ACTION = 'bfcache';
+
+/**
  * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
  *
  * @since 1.1.0
@@ -156,11 +165,14 @@ add_filter(
  *
  * Initially the current user ID was chosen as the cookie value, but this turned out to not be as secure. If someone
  * logs out and this cookie is cleared, a malicious user could easily re-set that cookie via JavaScript to be able to
- * navigate to an authenticated page via bfcache. By having the cookie value being random, then this risk is eliminated.
+ * navigate to an authenticated page via bfcache. By using a nonce then the token cannot be guessed, and it will be
+ * stable across re-authentications of the same user when their session expires (e.g. via the wp-auth-check).
  *
  * @since 1.0.0
+ * @since 1.1.0 This now returns a nonce generated for the user.
  * @access private
  * @see \WP_Session_Tokens::create()
+ * @todo Rename "bfcache session token" to just "bfcache nonce"?
  *
  * @return non-empty-string Session token.
  */
@@ -170,7 +182,7 @@ function generate_bfcache_session_token(): string {
 	 *
 	 * @var non-empty-string $token
 	 */
-	$token = wp_generate_password( 43, false, false );
+	$token = wp_create_nonce( BFCACHE_NONCE_ACTION );
 	return $token;
 }
 
@@ -288,6 +300,8 @@ function export_script_module_data(): array {
  *
  * @since 1.1.0
  * @access private
+ *
+ * @todo This is not going to work with the User Switching plugin.
  */
 function print_js_enabled_login_form_field(): void {
 	ob_start();
@@ -314,6 +328,8 @@ add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' )
  *
  * @since 1.1.0
  * @access private
+ * @todo This should not be limited to the interim login screen. The bfcache nonce should be cleared on the regular login screen.
+ * @todo This should also broadcast when submitting the login form when the user is still logged-in?
  */
 function print_interim_login_script(): void {
 	global $interim_login;

@@ -77,6 +77,10 @@ interimLoginBroadcastChannel.addEventListener( 'message', () => {
  */
 function onPageShow( event ) {
 	window.console.info( 'pageshow, persisted:', event.persisted ); // TODO: Debug.
+	if ( event.persisted ) {
+		// @ts-ignore
+		document.getElementById( 'wpadminbar' ).style.backgroundColor = 'green'; // TODO: Debug.
+	}
 
 	const currentSessionTokenString = String( getCurrentSessionToken() );
 
@@ -92,8 +96,7 @@ function onPageShow( event ) {
 		currentSessionTokenString
 	);
 
-	// If the hidden field was populated, then we know the page was either restored from bfcache or from a closed tab.
-	// In the case of bfcache, the event.persisted property is true, and a local variable could be looked at, but this
+	// In the case of bfcache, the event.persisted property is true, and a local variable could be looked at. But this
 	// is not the case for a page restored from a closed tab, so this is why sessionStorage is used. If the value does
 	// not match the current session token, then the authentication state has changed and the page needs to be reloaded.
 	if (
