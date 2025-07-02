@@ -307,11 +307,21 @@ function print_js_enabled_login_form_field(): void {
 	ob_start();
 	?>
 	<script type="module">
-		const input = document.createElement( 'input' );
-		input.type = 'hidden';
-		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
-		input.value = '1';
-		document.getElementById( 'loginform' ).appendChild( input );
+		try {
+			const input = document.createElement( 'input' );
+			input.type = 'hidden';
+			input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
+			input.value = '1';
+
+			// Make sure sessionStorage is available since it is a requirement for invalidation.
+			const testKey = 'nocache_bfcache_test';
+			sessionStorage.setItem( testKey, '1' );
+			sessionStorage.removeItem( testKey );
+
+			document.getElementById( 'loginform' ).appendChild( input );
+		} catch ( error ) {
+			console.error( '[No-cache BFCache] Failed to opt in to bfcache:', error );
+		}
 	</script>
 	<?php
 	print_inline_script_tag_from_html( (string) ob_get_clean() );
