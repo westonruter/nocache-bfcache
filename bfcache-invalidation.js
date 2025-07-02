@@ -8,6 +8,8 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 
 const latestSessionTokenStorageKey = 'nocache_bfcache_latest_session_token';
 
+const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
+
 /**
  * Exports from PHP.
  *
@@ -77,12 +79,23 @@ interimLoginBroadcastChannel.addEventListener( 'message', () => {
  */
 function onPageShow( event ) {
 	if ( data.debug ) {
-		window.console.info( 'pageshow, persisted:', event.persisted ); // TODO: Debug.
+		const adminBar = document.getElementById( 'wpadminbar' );
 		if ( event.persisted ) {
-			// @ts-ignore
-			document.getElementById( 'wpadminbar' ).style.backgroundColor =
-				'green'; // TODO: Debug.
+			window.console.info(
+				'[No-cache BFCache] Page restored from bfcache.'
+			);
+			if ( adminBar ) {
+				adminBar.style.backgroundColor = 'green'; // TODO: Debug.
+			}
+		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
+			window.console.info(
+				'[No-cache BFCache] Page invalidated from cache.'
+			);
+			if ( adminBar ) {
+				adminBar.style.backgroundColor = 'red'; // TODO: Debug.
+			}
 		}
+		sessionStorage.removeItem( bfcacheInvalidatedStorageKey );
 	}
 
 	const currentSessionTokenString = String( getCurrentSessionToken() );
@@ -106,17 +119,13 @@ function onPageShow( event ) {
 		latestSessionToken &&
 		latestSessionToken !== currentSessionTokenString
 	) {
-		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
 		if ( data.debug ) {
-			document.body.innerHTML = 'RELOADING DUE TO STALE BFCACHE SESSION'; // TODO: Temp debug.
-			document.body.style.backgroundColor = 'red'; // TODO: Temp debug.
-			setTimeout( () => {
-				window.location.reload();
-			}, 2000 ); // TODO: Temp debug.
-		} else {
-			document.body.innerHTML = '';
-			window.location.reload();
+			sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
 		}
+
+		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
+		document.body.innerHTML = '';
+		window.location.reload();
 	}
 }
 
