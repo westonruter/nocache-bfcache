@@ -76,10 +76,13 @@ interimLoginBroadcastChannel.addEventListener( 'message', () => {
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
 function onPageShow( event ) {
-	window.console.info( 'pageshow, persisted:', event.persisted ); // TODO: Debug.
-	if ( event.persisted ) {
-		// @ts-ignore
-		document.getElementById( 'wpadminbar' ).style.backgroundColor = 'green'; // TODO: Debug.
+	if ( data.debug ) {
+		window.console.info( 'pageshow, persisted:', event.persisted ); // TODO: Debug.
+		if ( event.persisted ) {
+			// @ts-ignore
+			document.getElementById( 'wpadminbar' ).style.backgroundColor =
+				'green'; // TODO: Debug.
+		}
 	}
 
 	const currentSessionTokenString = String( getCurrentSessionToken() );
@@ -104,10 +107,16 @@ function onPageShow( event ) {
 		latestSessionToken !== currentSessionTokenString
 	) {
 		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
-		document.body.innerHTML = '';
-
-		// TODO: Problem: This can cause a reload to occur when doing a regular navigation in another tab after re-authenticating.
-		window.location.reload();
+		if ( data.debug ) {
+			document.body.innerHTML = 'RELOADING DUE TO STALE BFCACHE SESSION'; // TODO: Temp debug.
+			document.body.style.backgroundColor = 'red'; // TODO: Temp debug.
+			setTimeout( () => {
+				window.location.reload();
+			}, 2000 ); // TODO: Temp debug.
+		} else {
+			document.body.innerHTML = '';
+			window.location.reload();
+		}
 	}
 }
 
