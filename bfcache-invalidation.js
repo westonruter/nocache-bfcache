@@ -133,7 +133,7 @@ function onPageShow( event ) {
 	// navigation, a non-persistent back/forward navigation, or a closed tab being restored. In these cases, the
 	// JavaScript heap is not available, so the session token must be read from sessionStorage.
 	//
-	// TODO: This is still not accounting for regular navigation.
+	// TODO: This is still not accounting for regular navigation. A reload will happen when navigating after first landing on the next page in a tab if someone logged in as another user in another session/tab.
 	let needsReload = false;
 	if ( event.persisted ) {
 		needsReload = initialSessionToken !== getCurrentSessionToken();

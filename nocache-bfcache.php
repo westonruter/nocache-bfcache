@@ -202,7 +202,7 @@ function generate_bfcache_session_token(): string {
  * @param string $scheme           Authentication scheme. Default 'logged_in'.
  */
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme ): void {
-	unset( $logged_in_cookie, $expiration, $user_id, $scheme ); // Unused args.
+	unset( $expiration, $scheme ); // Unused args.
 
 	// Do not set the cookie if the user does not have JavaScript enabled, since only JS can invalidate bfcache.
 	// For users with JavaScript disabled, they will retain the `no-store` directive on Cache-Control to protect privacy.
@@ -210,14 +210,21 @@ function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expir
 		return;
 	}
 
-	$cookie_name   = get_bfcache_session_token_cookie_name();
-	$session_token = generate_bfcache_session_token(); // TODO: Fail. This is being called before the user has been set.
+	// Replicate logic from wp_create_nonce() and wp_get_session_token() which cannot be called yet since the user has not been set yet.
+	$cookie_elements = explode( '|', $logged_in_cookie );
+	if ( count( $cookie_elements ) !== 4 ) {
+		return;
+	}
+	$token = $cookie_elements[2];
+	$i     = wp_nonce_tick( BFCACHE_NONCE_ACTION );
+	$nonce = substr( wp_hash( $i . '|' . BFCACHE_NONCE_ACTION . '|' . $user_id . '|' . $token, 'nonce' ), -12, 10 );
 
 	// The cookies are intentionally not HTTP-only.
+	$cookie_name = get_bfcache_session_token_cookie_name();
 	// TODO: Should they be conditionally secure?
-	setcookie( $cookie_name, $session_token, $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
+	setcookie( $cookie_name, $nonce, $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
 	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $session_token, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
+		setcookie( $cookie_name, $nonce, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
 	}
 }
 
