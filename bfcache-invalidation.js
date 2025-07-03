@@ -66,11 +66,27 @@ const interimLoginBroadcastChannel = new window.BroadcastChannel(
 	data.interimLoginBroadcastChannelName
 );
 interimLoginBroadcastChannel.addEventListener( 'message', () => {
+	// Note: if there are multiple authenticated tabs open, and in one tab they log out and log in to another user's
+	// account, the result could be that the sessionStorage is updated with the bfcache nonce for the other user.
+	// This would work with persisted page restoration because then the local variable would not match the
+	// sessionStorage, and a reload would occur. For re-opening a closed browser tab, this also wouldn't apply because
+	// the message wouldn't be received here in the first place; so when the `pageshow` event fires, the current cookie
+	// would not match the sessionStorage of the restored tab, and a reload would result.
 	sessionStorage.setItem(
 		latestSessionTokenStorageKey,
 		String( getCurrentSessionToken() )
 	);
 } );
+
+/**
+ * Initial session token.
+ *
+ * @type {string|null}
+ *
+ * @todo When is this updated? Heartbeat update?
+ * @todo Also update sessionStorage at the same time?
+ */
+const initialSessionToken = getCurrentSessionToken();
 
 /**
  * Reloads the page when navigating to a page via bfcache or via re-opening a closed tab, and the session has changed.
@@ -105,20 +121,26 @@ function onPageShow( event ) {
 	);
 
 	// Populate the sessionStorage key with the current session token so that it will be available going
-	// forward when this page is restored from bfcache or the page is restored from a closed tab.
+	// forward when this page (with the JavaScript heap) is not restored from bfcache but rather from a closed tab.
 	// This also prevents an infinite reload from happening.
 	sessionStorage.setItem(
 		latestSessionTokenStorageKey,
 		currentSessionTokenString
 	);
 
-	// In the case of bfcache, the event.persisted property is true, and a local variable could be looked at. But this
-	// is not the case for a page restored from a closed tab, so this is why sessionStorage is used. If the value does
-	// not match the current session token, then the authentication state has changed and the page needs to be reloaded.
-	if (
-		latestSessionToken &&
-		latestSessionToken !== currentSessionTokenString
-	) {
+	// In the case of bfcache, the event.persisted property is true, and a local variable from the restored JavaScript
+	// heap is looked at. Otherwise, the page state is not being restored; the page could be loaded via a regular
+	// navigation, a non-persistent back/forward navigation, or a closed tab being restored. In these cases, the
+	// JavaScript heap is not available, so the session token must be read from sessionStorage.
+	//
+	// TODO: This is still not accounting for regular navigation.
+	let needsReload = false;
+	if ( event.persisted ) {
+		needsReload = initialSessionToken !== getCurrentSessionToken();
+	} else if ( latestSessionToken ) {
+		needsReload = latestSessionToken !== currentSessionTokenString;
+	}
+	if ( needsReload ) {
 		if ( data.debug ) {
 			sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
 		}

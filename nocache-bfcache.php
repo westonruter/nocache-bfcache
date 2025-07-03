@@ -211,7 +211,7 @@ function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expir
 	}
 
 	$cookie_name   = get_bfcache_session_token_cookie_name();
-	$session_token = generate_bfcache_session_token();
+	$session_token = generate_bfcache_session_token(); // TODO: Fail. This is being called before the user has been set.
 
 	// The cookies are intentionally not HTTP-only.
 	// TODO: Should they be conditionally secure?
