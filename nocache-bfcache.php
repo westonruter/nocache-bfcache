@@ -49,6 +49,15 @@ const VERSION = '1.0.0';
 const INTERIM_LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_interim_login';
 
 /**
+ * Action used for generating the nonce for bfcache.
+ *
+ * @since 1.1.0
+ * @access string
+ * @var string
+ */
+const BFCACHE_NONCE_ACTION = 'bfcache';
+
+/**
  * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
  *
  * @since 1.1.0
@@ -156,11 +165,14 @@ add_filter(
  *
  * Initially the current user ID was chosen as the cookie value, but this turned out to not be as secure. If someone
  * logs out and this cookie is cleared, a malicious user could easily re-set that cookie via JavaScript to be able to
- * navigate to an authenticated page via bfcache. By having the cookie value being random, then this risk is eliminated.
+ * navigate to an authenticated page via bfcache. By using a nonce then the token cannot be guessed, and it will be
+ * stable across re-authentications of the same user when their session expires (e.g. via the wp-auth-check).
  *
  * @since 1.0.0
+ * @since 1.1.0 This now returns a nonce generated for the user.
  * @access private
  * @see \WP_Session_Tokens::create()
+ * @todo Rename "bfcache session token" to just "bfcache nonce"?
  *
  * @return non-empty-string Session token.
  */
@@ -170,7 +182,7 @@ function generate_bfcache_session_token(): string {
 	 *
 	 * @var non-empty-string $token
 	 */
-	$token = wp_generate_password( 43, false, false );
+	$token = wp_create_nonce( BFCACHE_NONCE_ACTION );
 	return $token;
 }
 
@@ -190,7 +202,7 @@ function generate_bfcache_session_token(): string {
  * @param string $scheme           Authentication scheme. Default 'logged_in'.
  */
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme ): void {
-	unset( $logged_in_cookie, $expiration, $user_id, $scheme ); // Unused args.
+	unset( $expiration, $scheme ); // Unused args.
 
 	// Do not set the cookie if the user does not have JavaScript enabled, since only JS can invalidate bfcache.
 	// For users with JavaScript disabled, they will retain the `no-store` directive on Cache-Control to protect privacy.
@@ -198,14 +210,21 @@ function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expir
 		return;
 	}
 
-	$cookie_name   = get_bfcache_session_token_cookie_name();
-	$session_token = generate_bfcache_session_token();
+	// Replicate logic from wp_create_nonce() and wp_get_session_token() which cannot be called yet since the user has not been set yet.
+	$cookie_elements = explode( '|', $logged_in_cookie );
+	if ( count( $cookie_elements ) !== 4 ) {
+		return;
+	}
+	$token = $cookie_elements[2];
+	$i     = wp_nonce_tick( BFCACHE_NONCE_ACTION );
+	$nonce = substr( wp_hash( $i . '|' . BFCACHE_NONCE_ACTION . '|' . $user_id . '|' . $token, 'nonce' ), -12, 10 );
 
 	// The cookies are intentionally not HTTP-only.
+	$cookie_name = get_bfcache_session_token_cookie_name();
 	// TODO: Should they be conditionally secure?
-	setcookie( $cookie_name, $session_token, $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
+	setcookie( $cookie_name, $nonce, $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
 	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $session_token, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
+		setcookie( $cookie_name, $nonce, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
 	}
 }
 
@@ -244,7 +263,7 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
  */
 function enqueue_script_module(): void {
 	if ( ! is_user_logged_in() ) {
-		return;
+		return; // TODO: This isn't right. The logic should run whenever the response would have originally had `no-store`, not whether the user was logged-in. But it can never be on the login screen!!
 	}
 
 	$module_id = '@westonruter/bfcache-invalidation';
@@ -288,16 +307,28 @@ function export_script_module_data(): array {
  *
  * @since 1.1.0
  * @access private
+ *
+ * @todo This is not going to work with the User Switching plugin.
  */
 function print_js_enabled_login_form_field(): void {
 	ob_start();
 	?>
 	<script type="module">
-		const input = document.createElement( 'input' );
-		input.type = 'hidden';
-		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
-		input.value = '1';
-		document.getElementById( 'loginform' ).appendChild( input );
+		try {
+			const input = document.createElement( 'input' );
+			input.type = 'hidden';
+			input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
+			input.value = '1';
+
+			// Make sure sessionStorage is available since it is a requirement for invalidation.
+			const testKey = 'nocache_bfcache_test';
+			sessionStorage.setItem( testKey, '1' );
+			sessionStorage.removeItem( testKey );
+
+			document.getElementById( 'loginform' ).appendChild( input );
+		} catch ( error ) {
+			console.error( '[No-cache BFCache] Failed to opt in to bfcache:', error );
+		}
 	</script>
 	<?php
 	print_inline_script_tag_from_html( (string) ob_get_clean() );
@@ -310,10 +341,12 @@ add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' )
  *
  * This is needed because wp-auth-check heartbeat tick isn't suitable for listening for when the session expires
  * and when the session re-auth has been successful. Also, BroadcastChannel has the additional benefit of invalidating
- * pages from bfcache.
+ * pages from bfcache in some browsers (e.g. Chrome) when a message is received.
  *
  * @since 1.1.0
  * @access private
+ * @todo This should not be limited to the interim login screen. The bfcache nonce should be cleared on the regular login screen.
+ * @todo This should also broadcast when submitting the login form when the user is still logged-in?
  */
 function print_interim_login_script(): void {
 	global $interim_login;
@@ -332,6 +365,27 @@ function print_interim_login_script(): void {
 }
 
 add_action( 'login_footer', __NAMESPACE__ . '\print_interim_login_script' );
+
+/**
+ * Prints a script on the login screen to delete the session storage key.
+ *
+ * This is needed so that once authenticated, an old token won't be carried over and be detected as a reason to initiate
+ * a reload.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function print_session_storage_key_delete_script(): void {
+	ob_start();
+	?>
+	<script type="module">
+		sessionStorage.removeItem( 'nocache_bfcache_latest_session_token' );
+	</script>
+	<?php
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
+}
+
+add_action( 'login_footer', __NAMESPACE__ . '\print_session_storage_key_delete_script' );
 
 /**
  * Adds missing hooks to print script modules in the Customizer if they are not present.
