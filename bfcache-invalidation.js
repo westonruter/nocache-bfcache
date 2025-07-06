@@ -48,7 +48,7 @@ function getCurrentSessionToken() {
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message}
  * @see {@link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500}
- * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js]
+ * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js}}
  *
  * TODO: When re-authenticating via the wp-auth-check iframe a new history entry seems to be added in the browser (at least in Chrome) meaning the back button has to be hit twice to go to the previous page. This is an existing issue in core.
  *
