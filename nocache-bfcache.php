@@ -516,58 +516,6 @@ function print_login_accessed_broadcast_script(): void {
 add_action( 'login_footer', __NAMESPACE__ . '\print_login_accessed_broadcast_script' );
 
 /**
- * Init debug admin bar.
- */
-function init_debug_admin_bar() {
-	add_action( 'admin_bar_menu', __NAMESPACE__ . '\add_debug_admin_bar_menu_item', 999 );
-	wp_add_inline_style(
-		'admin-bar',
-		'
-		#wp-admin-bar-nocache-bfcache-status-restored .ab-icon:before {
-			content: "\f12a";
-			top: 3px;
-		}
-		#wp-admin-bar-nocache-bfcache-status-evicted .ab-icon:before {
-			content: "\f153";
-			top: 3px;
-		}
-		'
-	);
-}
-
-/**
- * Add admin bar menu items.
- *
- * @param WP_Admin_Bar $admin_bar Admin bar.
- */
-function add_debug_admin_bar_menu_item( WP_Admin_Bar $admin_bar ): void {
-	$admin_bar->add_node(
-		array(
-			'id' => 'nocache-bfcache-status-restored',
-			'title' => sprintf( '<span class="ab-icon"></span><span class="ab-label">%s</span>', esc_html__( 'From bfcache', 'nocache-bfcache' ) ),
-			'href' => false,
-			'meta' => array(
-				'class' => 'hidden'
-			)
-		)
-	);
-	$admin_bar->add_node(
-		array(
-			'id' => 'nocache-bfcache-status-evicted',
-			'title' => sprintf( '<span class="ab-icon"></span><span class="ab-label">%s</span>', esc_html__( 'Not from bfcache', 'nocache-bfcache' ) ),
-			'href' => false,
-			'meta' => array(
-				'class' => 'hidden'
-			)
-		)
-	);
-}
-
-if ( WP_DEBUG ) {
-	add_action( 'admin_bar_init', __NAMESPACE__ . '\init_debug_admin_bar' );
-}
-
-/**
  * Adds missing hooks to print script modules in the Customizer if they are not present.
  *
  * @since 1.0.0

@@ -74,29 +74,11 @@ const initialSessionToken = getCurrentSessionToken();
  */
 function onPageShow( event ) {
 	if ( data.debug ) {
-		const restoredItem = document.getElementById(
-			'wp-admin-bar-nocache-bfcache-status-restored'
-		);
-		const evictedItem = document.getElementById(
-			'wp-admin-bar-nocache-bfcache-status-evicted'
-		);
-		if ( restoredItem ) {
-			restoredItem.classList.add( 'hidden' );
-		}
-		if ( evictedItem ) {
-			evictedItem.classList.add( 'hidden' );
-		}
 		if ( event.persisted ) {
-			if ( restoredItem ) {
-				restoredItem.classList.remove( 'hidden' );
-			}
 			window.console.info(
 				'[No-cache BFCache] Page restored from bfcache.'
 			);
 		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
-			if ( evictedItem ) {
-				evictedItem.classList.remove( 'hidden' );
-			}
 			window.console.info(
 				'[No-cache BFCache] Page invalidated from cache via pageshow event handler.'
 			);
