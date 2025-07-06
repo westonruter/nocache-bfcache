@@ -74,21 +74,32 @@ const initialSessionToken = getCurrentSessionToken();
  */
 function onPageShow( event ) {
 	if ( data.debug ) {
-		const adminBar = document.getElementById( 'wpadminbar' );
+		const restoredItem = document.getElementById(
+			'wp-admin-bar-nocache-bfcache-status-restored'
+		);
+		const evictedItem = document.getElementById(
+			'wp-admin-bar-nocache-bfcache-status-evicted'
+		);
+		if ( restoredItem ) {
+			restoredItem.classList.add( 'hidden' );
+		}
+		if ( evictedItem ) {
+			evictedItem.classList.add( 'hidden' );
+		}
 		if ( event.persisted ) {
+			if ( restoredItem ) {
+				restoredItem.classList.remove( 'hidden' );
+			}
 			window.console.info(
 				'[No-cache BFCache] Page restored from bfcache.'
 			);
-			if ( adminBar ) {
-				adminBar.style.backgroundColor = 'green'; // TODO: Debug.
-			}
 		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
+			if ( evictedItem ) {
+				evictedItem.classList.remove( 'hidden' );
+			}
 			window.console.info(
 				'[No-cache BFCache] Page invalidated from cache via pageshow event handler.'
 			);
-			if ( adminBar ) {
-				adminBar.style.backgroundColor = 'red'; // TODO: Debug.
-			}
 		}
 		sessionStorage.removeItem( bfcacheInvalidatedStorageKey );
 	}
