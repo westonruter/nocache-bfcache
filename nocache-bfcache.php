@@ -30,7 +30,6 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 
 use WP_HTML_Tag_Processor;
 use WP_Session_Tokens;
-use WP_Admin_Bar;
 
 /**
  * Version.
