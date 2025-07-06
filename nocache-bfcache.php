@@ -189,7 +189,7 @@ function filter_nocache_headers( $headers ): array {
 		// the user has elected to "Remember Me".
 		$cookie_name = get_bfcache_session_token_cookie_name();
 		if ( ! isset( $_COOKIE[ $cookie_name ] ) ) {
-			set_bfcache_session_token_cookie( $bfcache_session_token, 14 * DAY_IN_SECONDS );
+			set_bfcache_session_token_cookie( get_current_user_id(), $bfcache_session_token, 14 * DAY_IN_SECONDS );
 		}
 	}
 
@@ -260,22 +260,54 @@ function generate_bfcache_session_token(): string {
 }
 
 /**
+ * Determines whether the logged_in_cookie should be set as secure.
+ *
+ * This logic is copied from the `wp_set_auth_cookie()` function in core. This is because the `$secure_logged_in_cookie`
+ * value is computed internally and isn't readily available to filters that need access to this value. In reality, the
+ * bfcache session token would have a very low risk of being set as non-secure since its only purpose is to evict pages
+ * from the bfcache when someone logs out or logs in to another user account. Even here, however, this only applies in
+ * Safari which needs to rely on the `pageshow` event to manually evict pages from bfcache. Chrome and Firefox are able
+ * to evict pages from bfcache more cleanly simply via sending a message via BroadcastChannel.
+ *
+ * @since 1.1.0
+ * @access private
+ * @link https://github.com/WordPress/wordpress-develop/blob/f1d5beb452bda5035faaf1ab8a6c8c80c8ccd5d5/src/wp-includes/pluggable.php#L1010-L1036
+ *
+ * @param int $user_id User ID.
+ * @return bool Whether the logged_in_cookie is secure.
+ */
+function is_logged_in_cookie_secure( int $user_id ): bool {
+	$secure = is_ssl();
+	$home   = get_option( 'home' );
+
+	// Front-end cookie is secure when the auth cookie is secure and the site's home URL uses HTTPS.
+	$secure_logged_in_cookie = $secure && is_string( $home ) && 'https' === wp_parse_url( $home, PHP_URL_SCHEME );
+
+	/** This filter is documented in wp-includes/pluggable.php */
+	$secure = apply_filters( 'secure_auth_cookie', $secure, $user_id );
+
+	/** This filter is documented in wp-includes/pluggable.php */
+	return (bool) apply_filters( 'secure_logged_in_cookie', $secure_logged_in_cookie, $user_id, $secure );
+}
+
+/**
  * Sets the bfcache session token.
  *
  * @since 1.1.0
  * @access private
  *
+ * @param int    $user_id       User ID.
  * @param string $session_token Bfcache session token.
  * @param int    $expire        Expiration time.
  */
-function set_bfcache_session_token_cookie( string $session_token, int $expire ): void {
+function set_bfcache_session_token_cookie( int $user_id, string $session_token, int $expire ): void {
 	$cookie_name = get_bfcache_session_token_cookie_name();
 
 	// The cookies are intentionally not HTTP-only.
-	// TODO: Should they be conditionally secure?
-	setcookie( $cookie_name, $session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
+	$secure_logged_in_cookie = is_logged_in_cookie_secure( $user_id );
+	setcookie( $cookie_name, $session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
+		setcookie( $cookie_name, $session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	}
 }
 
@@ -300,11 +332,11 @@ function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expir
 
 	$session_token = get_user_bfcache_session_token( $user_id, $token );
 	if ( null !== $session_token ) {
-		set_bfcache_session_token_cookie( $session_token, $expiration );
+		set_bfcache_session_token_cookie( $user_id, $session_token, $expiration );
 	}
 }
 
-// TODO: Or 'set_auth_cookie'? Should this be set if not secure? This cookie should only be set if the other cookies are being set.
+// The logged-in cookie is used because the bfcache session token cookie should be available on the frontend and the backend.
 add_action(
 	'set_logged_in_cookie',
 	__NAMESPACE__ . '\set_logged_in_cookie',
