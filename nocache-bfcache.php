@@ -384,21 +384,99 @@ function export_script_module_data(): array {
  * @since 1.1.0
  * @access private
  *
- * @todo This is not going to work with the User Switching plugin.
  * @todo Merge with the following function.
  */
 function print_js_enabled_login_form_field(): void {
-	ob_start();
 	?>
+	<style>
+		/* Button */
+		#nocache-bfcache-feature {
+			margin-left: 0.5em;
+			background: none;
+			border: none;
+			padding: 0;
+			line-height: 1;
+			min-height: auto;
+			cursor: help;
+		}
+		#nocache-bfcache-feature > svg {
+			display: inline-block;
+		}
+		@keyframes nocache-bfcache-throb {
+			0%, 100% {
+				transform: scale(0.9);
+			}
+			50% {
+				transform: scale(1);
+			}
+		}
+		@starting-style {
+			#nocache-bfcache-feature {
+				opacity: 0;
+			}
+		}
+		#nocache-bfcache-feature {
+			transform: translateY(0);
+			transition: opacity 1s ease-out;
+		}
+		#nocache-bfcache-feature svg {
+			transform: scale(0.9);
+			animation: nocache-bfcache-throb 2s ease-in-out 0.7s infinite;
+		}
+
+		/* Popover */
+		#nocache-bfcache-feature-info {
+			text-align: left;
+			margin: auto;
+			padding: 26px 24px;
+			font-weight: 400;
+			overflow: hidden;
+			background: #fff;
+			border: 1px solid #c3c4c7;
+			max-width: 320px;
+		}
+		#nocache-bfcache-feature-info::backdrop {
+			background: #000;
+			opacity: 0.5;
+		}
+		#nocache-bfcache-feature-info h2 {
+			font-size: 14px;
+		}
+		#nocache-bfcache-feature-info p {
+			margin-top: 1em;
+		}
+		#nocache-bfcache-feature-info p.action-row {
+			text-align: center;
+		}
+	</style>
+	<?php ob_start(); ?>
 	<script type="module">
 		const input = document.createElement( 'input' );
 		input.type = 'hidden';
 		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
 		input.value = '1';
 		document.getElementById( 'loginform' ).appendChild( input );
+
+		const p = document.querySelector( 'p.forgetmenot:has(> input#rememberme ):has(> label:last-child[for="rememberme"] )' );
+		if ( p ) {
+			const tmpl = /** @type {HTMLTemplateElement} */ ( document.getElementById( 'nocache-bfcache-feature-button-tmpl' ) );
+			const button = tmpl.content.firstElementChild.cloneNode( true );
+			p.append( button );
+		}
 	</script>
+	<?php print_inline_script_tag_from_html( (string) ob_get_clean() ); ?>
+	<template id="nocache-bfcache-feature-button-tmpl">
+		<button id="nocache-bfcache-feature" popovertarget="nocache-bfcache-feature-info" type="button" class="button-secondary" aria-label="<?php esc_attr_e( 'New feature', 'nocache-bfcache' ); ?>">
+			<!-- Source: https://s.w.org/images/core/emoji/16.0.1/svg/2728.svg -->
+			<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFAC33" d="M34.347 16.893l-8.899-3.294-3.323-10.891c-.128-.42-.517-.708-.956-.708-.439 0-.828.288-.956.708l-3.322 10.891-8.9 3.294c-.393.146-.653.519-.653.938 0 .418.26.793.653.938l8.895 3.293 3.324 11.223c.126.424.516.715.959.715.442 0 .833-.291.959-.716l3.324-11.223 8.896-3.293c.391-.144.652-.518.652-.937 0-.418-.261-.792-.653-.938z"/><path fill="#FFCC4D" d="M14.347 27.894l-2.314-.856-.9-3.3c-.118-.436-.513-.738-.964-.738-.451 0-.846.302-.965.737l-.9 3.3-2.313.856c-.393.145-.653.52-.653.938 0 .418.26.793.653.938l2.301.853.907 3.622c.112.444.511.756.97.756.459 0 .858-.312.97-.757l.907-3.622 2.301-.853c.393-.144.653-.519.653-.937 0-.418-.26-.793-.653-.937zM10.009 6.231l-2.364-.875-.876-2.365c-.145-.393-.519-.653-.938-.653-.418 0-.792.26-.938.653l-.875 2.365-2.365.875c-.393.146-.653.52-.653.938 0 .418.26.793.653.938l2.365.875.875 2.365c.146.393.52.653.938.653.418 0 .792-.26.938-.653l.875-2.365 2.365-.875c.393-.146.653-.52.653-.938 0-.418-.26-.792-.653-.938z"/></svg>
+		</button>
+	</template>
+	<div popover id="nocache-bfcache-feature-info">
+		<h2><?php esc_html_e( 'New: Instant Back/Forward Navigation', 'nocache-bfcache' ); ?></h2>
+		<p><?php esc_html_e( 'When you opt to “Remember Me”, WordPress will tell your browser to save the state of pages when you navigate away from them. This allows them to be restored instantly when you use the back and forward buttons in your browser.', 'nocache-bfcache' ); ?></p>
+		<p class="action-row"><button popovertarget="nocache-bfcache-feature-info" class="button-secondary" type="button">OK</button></p>
+	</div>
 	<?php
-	print_inline_script_tag_from_html( (string) ob_get_clean() );
 }
 
 add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
