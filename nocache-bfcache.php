@@ -375,7 +375,7 @@ function export_script_module_data(): array {
 }
 
 /**
- * Prints a hidden input field in the login form when JavaScript is enabled.
+ * Augments the login form with a hidden input field when JavaScript is enabled and a popover to promote the feature.
  *
  * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
  * the `no-store` directive be removed from the `Cache-Control` response header. This is important because the pages in
@@ -383,10 +383,8 @@ function export_script_module_data(): array {
  *
  * @since 1.1.0
  * @access private
- *
- * @todo Merge with the following function.
  */
-function print_js_enabled_login_form_field(): void {
+function print_login_form_additions(): void {
 	?>
 	<style>
 		/* Button */
@@ -451,12 +449,14 @@ function print_js_enabled_login_form_field(): void {
 	</style>
 	<?php ob_start(); ?>
 	<script type="module">
+		// Add a hidden input that indicates JavaScript is enabled.
 		const input = document.createElement( 'input' );
 		input.type = 'hidden';
 		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
 		input.value = '1';
 		document.getElementById( 'loginform' ).appendChild( input );
 
+		// Add a button that opens a popover with information about the instant navigation feature.
 		const p = document.querySelector( 'p.forgetmenot:has(> input#rememberme ):has(> label:last-child[for="rememberme"] )' );
 		if ( p ) {
 			const tmpl = /** @type {HTMLTemplateElement} */ ( document.getElementById( 'nocache-bfcache-feature-button-tmpl' ) );
@@ -479,7 +479,7 @@ function print_js_enabled_login_form_field(): void {
 	<?php
 }
 
-add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' );
+add_action( 'login_form', __NAMESPACE__ . '\print_login_form_additions' );
 
 /**
  * Prints a script on the login screen to broadcast that the screen has been accessed to invalidate the bfcache.
@@ -501,7 +501,7 @@ add_action( 'login_form', __NAMESPACE__ . '\print_js_enabled_login_form_field' )
  * @link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message
  * @link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500
  */
-function print_login_script(): void {
+function print_login_accessed_broadcast_script(): void {
 	ob_start();
 	?>
 	<script type="module">
@@ -512,7 +512,7 @@ function print_login_script(): void {
 	print_inline_script_tag_from_html( (string) ob_get_clean() );
 }
 
-add_action( 'login_footer', __NAMESPACE__ . '\print_login_script' );
+add_action( 'login_footer', __NAMESPACE__ . '\print_login_accessed_broadcast_script' );
 
 /**
  * Adds missing hooks to print script modules in the Customizer if they are not present.
