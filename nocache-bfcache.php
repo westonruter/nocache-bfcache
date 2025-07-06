@@ -29,6 +29,7 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 }
 
 use WP_HTML_Tag_Processor;
+use WP_Session_Tokens;
 
 /**
  * Version.
@@ -60,6 +61,15 @@ const LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_login';
 const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
 
 /**
+ * User session key for the bfcache session token.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const BFCACHE_SESSION_TOKEN_USER_SESSION_KEY = 'bfcache_session_token';
+
+/**
  * Gets the name for the cookie which contains a session token for the bfcache.
  *
  * This incorporates the `COOKIEHASH` to prevent cookie collisions on multisite subdirectory installs.
@@ -72,6 +82,68 @@ const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled'
  */
 function get_bfcache_session_token_cookie_name(): string {
 	return 'wordpress_bfcache_session_' . COOKIEHASH;
+}
+
+/**
+ * Attaches session information for whether the user requested to "Remember Me" and whether JS was enabled.
+ *
+ * When the user has elected to have their session remembered, and they have JavaScript enabled, then pages will be
+ * served without the no-store directive in the Cache-Control header. Additionally, a script module will be printed on
+ * the pages to facilitate invalidating pages from bfcache after the user has logged out to protect privacy. Storing
+ * the bfcache session token in the user's session information allows for it to be restored when switching back to the
+ * user with a plugin like User Switching. It also allows the cookie to be re-set if it gets deleted in the course of
+ * a user's authenticated session.
+ *
+ * @since 1.1.0
+ * @access private
+ * @see WP_Session_Tokens::create()
+ *
+ * @param array<string, mixed>|mixed $session Session.
+ * @return array<string, mixed> Session.
+ */
+function attach_session_information( $session ): array {
+	/**
+	 * Because plugins do bad things.
+	 *
+	 * @var array<string, mixed> $session
+	 */
+	if ( ! is_array( $session ) ) {
+		$session = array();
+	}
+	if ( isset( $_POST['rememberme'] ) && isset( $_POST[ JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] = generate_bfcache_session_token();
+	}
+	return $session;
+}
+
+add_filter( 'attach_session_information', __NAMESPACE__ . '\attach_session_information' );
+
+/**
+ * Gets the bfcache session token for the current user.
+ *
+ * @since 1.1.0
+ * @access private
+ *
+ * @param int|null    $user_id       User ID. Defaults to the current user ID.
+ * @param string|null $session_token Session token. Defaults to the current session token.
+ * @return non-empty-string|null Bfcache session token if available.
+ */
+function get_user_bfcache_session_token( ?int $user_id = null, ?string $session_token = null ): ?string {
+	if ( ! is_user_logged_in() && null === $user_id && null === $session_token ) {
+		return null;
+	}
+
+	$instance = WP_Session_Tokens::get_instance( $user_id ?? get_current_user_id() );
+	$session  = $instance->get( $session_token ?? wp_get_session_token() );
+	if (
+		is_array( $session ) &&
+		isset( $session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] ) &&
+		is_string( $session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] ) &&
+		'' !== $session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ]
+	) {
+		return $session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ];
+	}
+	return null;
 }
 
 /**
@@ -103,11 +175,22 @@ function filter_nocache_headers( $headers ): array {
 		return $headers;
 	}
 
-	// If the bfcache session token cookie has not been set, then this is an indication that JavaScript is not enabled.
-	// When JavaScript is disabled, the `no-store` directive is kept to preserve the privacy of authenticated pages in
-	// the browser history. This is because only when JavaScript is enabled can pages in bfcache be invalidated.
-	if ( ! isset( $_COOKIE[ get_bfcache_session_token_cookie_name() ] ) ) {
-		return $headers;
+	// If a user is logged in, then enabling bfcache is contingent upon the "Remember Me" opt-in and JS being enabled, since bfcache invalidation becomes important.
+	if ( is_user_logged_in() ) {
+		// Abort if the user session doesn't have bfcache enabled since they hadn't logged in with "Remember Me" and JavaScript enabled.
+		$bfcache_session_token = get_user_bfcache_session_token();
+		if ( null === $bfcache_session_token ) {
+			return $headers;
+		}
+
+		// The bfcache session cookie is normally set during log in. If it was deleted for some reason, then it needs to be
+		// re-set so that it is available to JavaScript so that the pageshow event can invalidate bfcache when the cookie
+		// has changed. The bfcache session token is only generated when JavaScript has been detected to be enabled and
+		// the user has elected to "Remember Me".
+		$cookie_name = get_bfcache_session_token_cookie_name();
+		if ( ! isset( $_COOKIE[ $cookie_name ] ) ) {
+			set_bfcache_session_token_cookie( $bfcache_session_token, 14 * DAY_IN_SECONDS );
+		}
 	}
 
 	// See the commit message for <https://core.trac.wordpress.org/changeset/55968> which the following seeks to unto in how it introduced 'no-store'.
@@ -162,8 +245,7 @@ add_filter(
  *
  * @since 1.0.0
  * @access private
- * @see \WP_Session_Tokens::create()
- * @todo Store this session token in the user's session and then send read this out to set in a cookie when restoring a user session (e.g. via User Switching)?
+ * @see WP_Session_Tokens::create()
  *
  * @return non-empty-string Session token.
  */
@@ -175,6 +257,26 @@ function generate_bfcache_session_token(): string {
 	 */
 	$token = wp_generate_password( 43, false, false );
 	return $token;
+}
+
+/**
+ * Sets the bfcache session token.
+ *
+ * @since 1.1.0
+ * @access private
+ *
+ * @param string $session_token Bfcache session token.
+ * @param int    $expire        Expiration time.
+ */
+function set_bfcache_session_token_cookie( string $session_token, int $expire ): void {
+	$cookie_name = get_bfcache_session_token_cookie_name();
+
+	// The cookies are intentionally not HTTP-only.
+	// TODO: Should they be conditionally secure?
+	setcookie( $cookie_name, $session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
+	if ( COOKIEPATH !== SITECOOKIEPATH ) {
+		setcookie( $cookie_name, $session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
+	}
 }
 
 /**
@@ -191,24 +293,14 @@ function generate_bfcache_session_token(): string {
  *                                 Default is 14 days from now.
  * @param int    $user_id          User ID.
  * @param string $scheme           Authentication scheme. Default 'logged_in'.
+ * @param string $token            User's session token to use for this cookie. Empty string when clearing cookies.
  */
-function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme ): void {
-	unset( $logged_in_cookie, $expiration, $user_id, $scheme ); // Unused args.
+function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme, string $token ): void {
+	unset( $logged_in_cookie, $expire, $scheme ); // Unused args.
 
-	// Do not set the cookie if the user does not have JavaScript enabled, since only JS can invalidate bfcache.
-	// For users with JavaScript disabled, they will retain the `no-store` directive on Cache-Control to protect privacy.
-	if ( ! isset( $_POST[ JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		return;
-	}
-
-	$cookie_name   = get_bfcache_session_token_cookie_name();
-	$session_token = generate_bfcache_session_token();
-
-	// The cookies are intentionally not HTTP-only.
-	// TODO: Should they be conditionally secure?
-	setcookie( $cookie_name, $session_token, $expire, COOKIEPATH, COOKIE_DOMAIN, false, false );
-	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $session_token, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, false, false );
+	$session_token = get_user_bfcache_session_token( $user_id, $token );
+	if ( null !== $session_token ) {
+		set_bfcache_session_token_cookie( $session_token, $expiration );
 	}
 }
 
@@ -217,7 +309,7 @@ add_action(
 	'set_logged_in_cookie',
 	__NAMESPACE__ . '\set_logged_in_cookie',
 	10,
-	5
+	6
 );
 
 /**
@@ -239,15 +331,15 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
 /**
  * Enqueues script module to invalidate bfcache.
  *
- * This script module is only enqueued when the user is logged in. A page loaded from bfcache is invalided if the
- * session token cookie has changed due to the user logging out or logging in as another user.
+ * This script module is only enqueued when the user is logged in and had opted in to bfcache via electing to "Remember
+ * Me" and having JavaScript enabled.
  *
  * @since 1.0.0
  * @access private
  */
 function enqueue_script_module(): void {
-	if ( ! is_user_logged_in() ) {
-		return; // TODO: This isn't right. The logic should run whenever the response would have originally had `no-store`, not whether the user was logged-in. But it can never be on the login screen!!
+	if ( null === get_user_bfcache_session_token() ) {
+		return;
 	}
 
 	$module_id = '@westonruter/bfcache-invalidation';
