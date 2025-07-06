@@ -6,8 +6,6 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 	)
 );
 
-const latestSessionTokenStorageKey = 'nocache_bfcache_latest_session_token';
-
 const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
 
 /**
@@ -15,7 +13,7 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  *
  * @type {{
  *     cookieName: string,
- *     interimLoginBroadcastChannelName: string,
+ *     loginBroadcastChannelName: string,
  *     debug: boolean,
  * }}
  */
@@ -38,53 +36,34 @@ function getCurrentSessionToken() {
 }
 
 /**
- * Broadcast channel which listens to updates from the interim login screen.
+ * Broadcast channel for updates from the login screen in order to invalidate the bfcache.
  *
- * Make sure that the bfcache session token is updated whenever the interim login is shown or successfully closed.
- * A message to the 'nocache_bfcache_interim_login' BroadcastChannel is sent at the `login_footer` action for the
- * interim login screen. A message is sent when a login is prompted due to the session expiring, and another message is
- * sent after a successful login. Whether the message is for a successful login or not is not relevant as in both cases
- * we just need to read the cookie to get the current bfcache session token (which may be none).
- *
- * There is another benefit to the use of BroadcastChannel: when a page in bfcache receives a message from
- * BroadcastChannel, the page may be automatically be blocked from being restored. This ensures that if another user logs
- * in via the interim login, they are not able to go back to access an authenticated page for the previously
- * authenticated user. Otherwise, if the page wasn't already automatically invalidated from bfcache in this instance,
- * it would have been invalidated via the `pageshow` event below since the `latestSessionToken` in the frozen page in
- * bfcache would not match the current session token. In Chrome DevTools, the bfcache error code here is
- * `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
+ * When a page in bfcache receives a message from BroadcastChannel, the page may be automatically be blocked from being
+ * restored. This ensures that if another user logs in that they are not able to go back to access an authenticated page
+ * for the previously authenticated user. Otherwise, if the page wasn't already automatically invalidated from bfcache
+ * in this instance, it would have been invalidated via the `pageshow` event below since the `initialSessionToken` in
+ * the frozen page in bfcache would not match the current session token. In Chrome DevTools, the bfcache error code here
+ * is `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
  * "broadcastchannel-message" blocking reason. Chrome has implemented this.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message}
  * @see {@link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500}
  *
- * TODO: The wp-auth-check iframe should be made inert when it is hidden. Currently the back button seems to be navigating in the iframe after re-auth.
+ * TODO: When re-authenticating via the wp-auth-check iframe a new history entry seems to be added in the browser (at least in Chrome) meaning the back button has to be hit twice to go to the previous page. This is an existing issue in core.
  *
  * @type {BroadcastChannel}
  */
-const interimLoginBroadcastChannel = new window.BroadcastChannel(
-	data.interimLoginBroadcastChannelName
+const loginBroadcastChannel = new window.BroadcastChannel(
+	data.loginBroadcastChannelName
 );
-interimLoginBroadcastChannel.addEventListener( 'message', () => {
-	// Note: if there are multiple authenticated tabs open, and in one tab they log out and log in to another user's
-	// account, the result could be that the sessionStorage is updated with the bfcache nonce for the other user.
-	// This would work with persisted page restoration because then the local variable would not match the
-	// sessionStorage, and a reload would occur. For re-opening a closed browser tab, this also wouldn't apply because
-	// the message wouldn't be received here in the first place; so when the `pageshow` event fires, the current cookie
-	// would not match the sessionStorage of the restored tab, and a reload would result.
-	sessionStorage.setItem(
-		latestSessionTokenStorageKey,
-		String( getCurrentSessionToken() )
-	);
+loginBroadcastChannel.addEventListener( 'message', () => {
+	// The only purpose of this listener is to trigger the "broadcastchannel-message" bfcache blocking reason.
 } );
 
 /**
  * Initial session token.
  *
  * @type {string|null}
- *
- * @todo When is this updated? Heartbeat update?
- * @todo Also update sessionStorage at the same time?
  */
 const initialSessionToken = getCurrentSessionToken();
 
@@ -105,7 +84,7 @@ function onPageShow( event ) {
 			}
 		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
 			window.console.info(
-				'[No-cache BFCache] Page invalidated from cache.'
+				'[No-cache BFCache] Page invalidated from cache via pageshow event handler.'
 			);
 			if ( adminBar ) {
 				adminBar.style.backgroundColor = 'red'; // TODO: Debug.
@@ -114,33 +93,9 @@ function onPageShow( event ) {
 		sessionStorage.removeItem( bfcacheInvalidatedStorageKey );
 	}
 
-	const currentSessionTokenString = String( getCurrentSessionToken() );
-
-	const latestSessionToken = sessionStorage.getItem(
-		latestSessionTokenStorageKey
-	);
-
-	// Populate the sessionStorage key with the current session token so that it will be available going
-	// forward when this page (with the JavaScript heap) is not restored from bfcache but rather from a closed tab.
-	// This also prevents an infinite reload from happening.
-	sessionStorage.setItem(
-		latestSessionTokenStorageKey,
-		currentSessionTokenString
-	);
-
 	// In the case of bfcache, the event.persisted property is true, and a local variable from the restored JavaScript
-	// heap is looked at. Otherwise, the page state is not being restored; the page could be loaded via a regular
-	// navigation, a non-persistent back/forward navigation, or a closed tab being restored. In these cases, the
-	// JavaScript heap is not available, so the session token must be read from sessionStorage.
-	//
-	// TODO: This is still not accounting for regular navigation. A reload will happen when navigating after first landing on the next page in a tab if someone logged in as another user in another session/tab.
-	let needsReload = false;
-	if ( event.persisted ) {
-		needsReload = initialSessionToken !== getCurrentSessionToken();
-	} else if ( latestSessionToken ) {
-		needsReload = latestSessionToken !== currentSessionTokenString;
-	}
-	if ( needsReload ) {
+	// heap is looked at.
+	if ( event.persisted && initialSessionToken !== getCurrentSessionToken() ) {
 		if ( data.debug ) {
 			sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
 		}
