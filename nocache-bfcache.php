@@ -487,8 +487,8 @@ add_action( 'login_form', __NAMESPACE__ . '\print_login_form_additions' );
  *
  * When a page is subscribed to messages from a given BroadcastChannel, a message received while it is in bfcache
  * results in the page being evicted from the bfcache with a "broadcastchannel-message" blocking reason, at least in
- * Chrome. This behavior has been [proposed](https://github.com/whatwg/html/issues/7253#issuecomment-2632953500) for
- * standardization.
+ * Chrome and Firefox. This behavior has been [proposed](https://github.com/whatwg/html/issues/7253#issuecomment-2632953500)
+ * for standardization.
  *
  * Technically, this message only should be broadcast if an unauthenticated user lands on this screen, since an
  * authenticated user could decide to not go ahead with logging in as another user (without first logging out). However,
@@ -501,6 +501,7 @@ add_action( 'login_form', __NAMESPACE__ . '\print_login_form_additions' );
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message
  * @link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500
+ * @link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js
  */
 function print_login_accessed_broadcast_script(): void {
 	ob_start();

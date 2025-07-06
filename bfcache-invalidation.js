@@ -44,10 +44,11 @@ function getCurrentSessionToken() {
  * in this instance, it would have been invalidated via the `pageshow` event below since the `initialSessionToken` in
  * the frozen page in bfcache would not match the current session token. In Chrome DevTools, the bfcache error code here
  * is `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
- * "broadcastchannel-message" blocking reason. Chrome has implemented this.
+ * "broadcastchannel-message" blocking reason. Both Chrome and Firefox seem to have implemented this, but Safari has not.
  *
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message}
  * @see {@link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500}
+ * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js]
  *
  * TODO: When re-authenticating via the wp-auth-check iframe a new history entry seems to be added in the browser (at least in Chrome) meaning the back button has to be hit twice to go to the previous page. This is an existing issue in core.
  *
@@ -69,6 +70,9 @@ const initialSessionToken = getCurrentSessionToken();
 
 /**
  * Reloads the page when navigating to a page via bfcache or via re-opening a closed tab, and the session has changed.
+ *
+ * This seems to only be needed by Safari since both Chrome and Firefox evict pages from bfcache when the login screen
+ * messages are received via BroadcastChannel, in which case the "broadcastchannel-message" blocking reason occurs.
  *
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
