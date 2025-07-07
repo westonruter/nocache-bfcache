@@ -10,7 +10,6 @@
  * Author URI: https://weston.ruter.net/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * Update URI: https://github.com/westonruter/nocache-bfcache
  * GitHub Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Primary Branch: main
  *
