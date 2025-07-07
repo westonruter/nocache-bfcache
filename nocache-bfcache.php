@@ -506,7 +506,9 @@ function print_login_form_additions(): void {
 	<div popover id="nocache-bfcache-feature-info">
 		<h2><?php esc_html_e( 'New: Instant Back/Forward Navigation', 'nocache-bfcache' ); ?></h2>
 		<p><?php esc_html_e( 'When you opt to “Remember Me”, WordPress will tell your browser to save the state of pages when you navigate away from them. This allows them to be restored instantly when you use the back and forward buttons in your browser.', 'nocache-bfcache' ); ?></p>
-		<p class="action-row"><button popovertarget="nocache-bfcache-feature-info" class="button-secondary" type="button">OK</button></p>
+		<p class="action-row">
+			<button popovertarget="nocache-bfcache-feature-info" class="button-secondary" type="button"><?php esc_html_e( 'OK', 'nocache-bfcache' ); ?></button>
+		</p>
 	</div>
 	<?php
 }
