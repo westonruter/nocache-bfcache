@@ -19,6 +19,7 @@
 		"lint:js": "wp-scripts lint-js",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "git archive --format=zip --output=nocache-bfcache.zip HEAD",
-		"prepare": "husky"
+		"prepare": "husky",
+		"transform-readme": "php tools/transform-readme.php"
 	}
 }
