@@ -6,7 +6,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when "
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
 **Stable tag:**   1.0.0  
-**License:**      [GPLv2 or later](http://www.gnu.org/licenses/gpl-2.0.html)
+**License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
 
