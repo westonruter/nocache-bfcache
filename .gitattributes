@@ -4,7 +4,9 @@
 .github/ export-ignore
 .gitignore export-ignore
 .husky/ export-ignore
+.markdownlint.json export-ignore
 .nvmrc export-ignore
+.wordpress-org export-ignore
 composer.json export-ignore
 composer.lock export-ignore
 lint-staged.config.js export-ignore
@@ -13,5 +15,6 @@ package-lock.json export-ignore
 package.json export-ignore
 phpcs.xml.dist export-ignore
 phpstan.neon.dist export-ignore
+stylelint.config.js export-ignore
 tools/ export-ignore
 tsconfig.json export-ignore
