@@ -406,6 +406,22 @@ function export_script_module_data(): array {
 }
 
 /**
+ * Enqueues styles for the login form.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function enqueue_login_form_styles(): void {
+	wp_enqueue_style(
+		'nocache-bfcache-login-form',
+		plugins_url( 'login-form.css', __FILE__ ),
+		array(),
+		VERSION
+	);
+}
+add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_login_form_styles' );
+
+/**
  * Augments the login form with a hidden input field when JavaScript is enabled and a popover to promote the feature.
  *
  * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
@@ -416,11 +432,6 @@ function export_script_module_data(): array {
  * @access private
  */
 function print_login_form_additions(): void {
-	printf(
-		'<style>%s</style>',
-		file_get_contents( __DIR__ . '/login-form.css' ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
-	);
-
 	ob_start(); ?>
 	<script type="module">
 		// Add a hidden input that indicates JavaScript is enabled.
