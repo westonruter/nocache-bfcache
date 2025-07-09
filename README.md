@@ -65,6 +65,20 @@ Relevant core tickets that this revisits:
 
 You may also install and update via [Git Updater](https://git-updater.com/).
 
+## Screenshots ##
+
+### The “Remember Me” checkbox now has a ✨ button which opens a popover.
+
+![WordPress login screen](.wordpress-org/screenshot-1.png)
+
+### The popover describes the benefits of clicking the “Remember Me” checkbox.
+
+![Popover on login screen](.wordpress-org/screenshot-2.png)
+
+### Pages are served from bfcache where previously they would fail to do so with an issue like `MainResourceHasCacheControlNoStore` showing up in the “Back/forward cache” panel of the Application tab in Chrome DevTools.
+
+![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
+
 ## Changelog ##
 
 ### 1.0.0 ###
