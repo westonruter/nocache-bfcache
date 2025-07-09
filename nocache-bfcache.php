@@ -2,7 +2,7 @@
 /**
  * Plugin Name: No-cache BFCache
  * Plugin URI: https://github.com/westonruter/nocache-bfcache
- * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent.
+ * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
  * Requires at least: 6.8
  * Requires PHP: 7.2
  * Version: 1.0.0
@@ -10,7 +10,6 @@
  * Author URI: https://weston.ruter.net/
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * Update URI: https://github.com/westonruter/nocache-bfcache
  * GitHub Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Primary Branch: main
  *
@@ -23,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
 }
 
-// Abort executing the plugin if the core patch has been applied.
+// Abort executing the plugin if the core patch has been applied. See <https://github.com/WordPress/wordpress-develop/pull/9131>.
 if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_bfcache_script_module' ) ) {
 	return;
 }
@@ -407,6 +406,22 @@ function export_script_module_data(): array {
 }
 
 /**
+ * Enqueues styles for the login form.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function enqueue_login_form_styles(): void {
+	wp_enqueue_style(
+		'nocache-bfcache-login-form',
+		plugins_url( 'login-form.css', __FILE__ ),
+		array(),
+		VERSION
+	);
+}
+add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_login_form_styles' );
+
+/**
  * Augments the login form with a hidden input field when JavaScript is enabled and a popover to promote the feature.
  *
  * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
@@ -417,69 +432,7 @@ function export_script_module_data(): array {
  * @access private
  */
 function print_login_form_additions(): void {
-	?>
-	<style>
-		/* Button */
-		#nocache-bfcache-feature {
-			margin-left: 0.5em;
-			background: none;
-			border: none;
-			padding: 0;
-			line-height: 1;
-			min-height: auto;
-			cursor: help;
-		}
-		#nocache-bfcache-feature > svg {
-			display: inline-block;
-		}
-		@keyframes nocache-bfcache-throb {
-			0%, 100% {
-				transform: scale(0.9);
-			}
-			50% {
-				transform: scale(1);
-			}
-		}
-		@starting-style {
-			#nocache-bfcache-feature {
-				opacity: 0;
-			}
-		}
-		#nocache-bfcache-feature {
-			transform: translateY(0);
-			transition: opacity 1s ease-out;
-		}
-		#nocache-bfcache-feature svg {
-			transform: scale(0.9);
-			animation: nocache-bfcache-throb 2s ease-in-out 0.7s infinite;
-		}
-
-		/* Popover */
-		#nocache-bfcache-feature-info {
-			text-align: left;
-			margin: auto;
-			padding: 26px 24px;
-			font-weight: 400;
-			overflow: hidden;
-			background: #fff;
-			border: 1px solid #c3c4c7;
-			max-width: 320px;
-		}
-		#nocache-bfcache-feature-info::backdrop {
-			background: #000;
-			opacity: 0.5;
-		}
-		#nocache-bfcache-feature-info h2 {
-			font-size: 14px;
-		}
-		#nocache-bfcache-feature-info p {
-			margin-top: 1em;
-		}
-		#nocache-bfcache-feature-info p.action-row {
-			text-align: center;
-		}
-	</style>
-	<?php ob_start(); ?>
+	ob_start(); ?>
 	<script type="module">
 		// Add a hidden input that indicates JavaScript is enabled.
 		const input = document.createElement( 'input' );

@@ -96,5 +96,14 @@ jobs:
             - name: Run JavaScript linter
               run: npm run lint:js
 
+            - name: Run CSS linter
+              run: npm run lint:css
+
             - name: Check Composer configuration format
               run: composer normalize --dry-run
+
+            - name: Check Markdown format
+              run: npm run lint:md
+
+            - name: Check README.md format
+              run: npm run transform-readme
