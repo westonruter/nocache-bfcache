@@ -3,7 +3,7 @@
 Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
 
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter)  
-**Tags:**         performance, caching
+**Tags:**         performance, caching  
 **Tested up to:** 6.8  
 **Stable tag:**   1.0.0  
 **License:**      [GPLv2 or later](http://www.gnu.org/licenses/gpl-2.0.html)
