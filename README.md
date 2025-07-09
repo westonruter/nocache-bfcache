@@ -1,6 +1,6 @@
 # No-cache BFCache #
 
-Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent.
+Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
 
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter)  
 **Tags:**         performance, caching

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: No-cache BFCache
  * Plugin URI: https://github.com/westonruter/nocache-bfcache
- * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent.
+ * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
  * Requires at least: 6.8
  * Requires PHP: 7.2
  * Version: 1.0.0
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
 }
 
-// Abort executing the plugin if the core patch has been applied.
+// Abort executing the plugin if the core patch has been applied. See <https://github.com/WordPress/wordpress-develop/pull/9131>.
 if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_bfcache_script_module' ) ) {
 	return;
 }
