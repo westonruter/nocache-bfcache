@@ -17,6 +17,7 @@
 		"format": "wp-scripts format && wp-scripts lint-js --fix && composer phpcbf && composer normalize",
 		"lint": "tsc && npm run lint:js && composer phpstan && composer phpcs && composer normalize --dry-run && npm run transform-readme",
 		"lint:js": "wp-scripts lint-js",
+		"lint:md": "wp-scripts lint-md-docs",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run transform-readme && git archive --format=zip --output=nocache-bfcache.zip --add-file readme.txt HEAD && zip nocache-bfcache.zip -d README.md",
 		"prepare": "husky",

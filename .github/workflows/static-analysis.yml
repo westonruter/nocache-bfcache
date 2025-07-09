@@ -99,5 +99,8 @@ jobs:
             - name: Check Composer configuration format
               run: composer normalize --dry-run
 
+            - name: Check Markdown format
+              run: npm run lint:md
+
             - name: Check README.md format
               run: npm run transform-readme

@@ -1,4 +1,4 @@
-# No-cache BFCache #
+# No-cache BFCache
 
 Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
 
@@ -8,7 +8,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when "
 **Stable tag:**   1.0.0  
 **License:**      [GPLv2 or later](http://www.gnu.org/licenses/gpl-2.0.html)
 
-## Description ##
+## Description
 
 Normally, WordPress sends a `Cache-Control` header with the `no-store` directive when logged in. This has the effect of [breaking the browser's bfcache](https://web.dev/articles/bfcache#minimize-no-store), which means that navigating back or forward in the browser requires the pages to be re-fetched from the server and for any JavaScript on the page to re-execute. The result can be a sluggish navigation experience not only when navigating around the WP Admin but also potentially when navigating around the frontend of a site. Furthermore, the lack of bfcache can result in data loss when data has been entered via a JavaScript-built UI since this state is lost when a page is not restored via bfcache. (See [demo video](https://github.com/woocommerce/woocommerce/pull/58445#issuecomment-3014404754) in WooCommerce.)
 
@@ -55,7 +55,7 @@ Relevant core tickets that this revisits:
 * [#57627](https://core.trac.wordpress.org/ticket/57627): The Cache-Control header for logged-in pages should include `private`
 * [#61942](https://core.trac.wordpress.org/ticket/61942): Add "no-store" to Cache-Control header to prevent unexpected cache behavior
 
-## Installation ##
+## Installation
 
 1. Download the plugin [ZIP from GitHub](https://github.com/westonruter/bfcache/archive/refs/heads/main.zip) or if you have a local clone of the repo, run `npm run plugin-zip`.
 2. Visit **Plugins > Add New Plugin** in the WordPress Admin.
@@ -65,22 +65,25 @@ Relevant core tickets that this revisits:
 
 You may also install and update via [Git Updater](https://git-updater.com/).
 
-## Screenshots ##
+## Screenshots
 
+<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### The “Remember Me” checkbox now has a ✨ button which opens a popover.
 
 ![WordPress login screen](.wordpress-org/screenshot-1.png)
 
+<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### The popover describes the benefits of clicking the “Remember Me” checkbox.
 
 ![Popover on login screen](.wordpress-org/screenshot-2.png)
 
+<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### Pages are served from bfcache where previously they would fail to do so with an issue like `MainResourceHasCacheControlNoStore` showing up in the “Back/forward cache” panel of the Application tab in Chrome DevTools.
 
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
 
-## Changelog ##
+## Changelog
 
-### 1.0.0 ###
+### 1.0.0
 
 * Initial release.

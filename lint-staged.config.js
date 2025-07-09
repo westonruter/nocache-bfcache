@@ -8,6 +8,7 @@ const config = {
 		() => 'composer normalize --dry-run',
 	],
 	'*.php': [ 'composer phpcs', () => 'composer phpstan' ],
+	'*.md': [ 'npx wp-scripts lint-md-docs' ],
 	'README.md': [ 'npm run transform-readme' ],
 };
 
