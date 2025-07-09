@@ -4,22 +4,54 @@
  * Rewrite README.md into WordPress's readme.txt
  *
  * @codeCoverageIgnore
- * @package WestonRuter\NocacheBFCache
+ * @package WestonRuter\TransformReadme
  */
 
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
+namespace WestonRuter\TransformReadme;
+
+/**
+ * Logs a message.
+ *
+ * @param string $message Message.
+ */
+function log( string $message ): void {
+	fwrite( STDERR, "$message\n" );
+}
+
+/**
+ * Exits with an error.
+ *
+ * @param string $message     Message.
+ * @param int    $line_number Line number.
+ *
+ * @phpstan-return never
+ */
+function error( string $message, int $line_number ): void {
+	fwrite( STDERR, "$message (from line $line_number)\n" );
+	exit( 1 );
+}
+
+/**
+ * Logs a warning.
+ *
+ * @param string $message     Message.
+ * @param int    $line_number Line number.
+ */
+function warn( string $message, int $line_number ): void {
+	fwrite( STDERR, "$message (from line $line_number)\n" );
+}
+
 if ( 'cli' !== php_sapi_name() ) {
-	fwrite( STDERR, "Must run from CLI.\n" );
-	exit( __LINE__ );
+	error( 'Must run from CLI', __LINE__ );
 }
 
 $readme_md = file_get_contents( __DIR__ . '/../README.md' );
 if ( ! is_string( $readme_md ) ) {
-	fwrite( STDERR, "Unable to read from README.md.\n" );
-	exit( __LINE__ );
+	error( 'Unable to read from README.md.', __LINE__ );
 }
 
 $readme_txt = $readme_md;
@@ -34,24 +66,21 @@ $readme_txt = (string) preg_replace_callback(
 		$parts = preg_split( '/\n\n+/', $input );
 
 		if ( ! is_array( $parts ) || 3 !== count( $parts ) ) {
-			fwrite( STDERR, "Too many sections in header found.\n" );
-			exit( __LINE__ );
+			error( 'Too many sections in header found.', __LINE__ );
 		}
 
 		$header = $parts[0];
 
 		$description = $parts[1];
 		if ( strlen( $description ) > 150 ) {
-			fwrite( STDERR, "The short description is too long: $description\n" );
-			exit( __LINE__ );
+			error( "The short description is too long: $description", __LINE__ );
 		}
 
 		$metadata = array();
 		foreach ( explode( "\n", $parts[2] ) as $meta ) {
 			$meta = trim( $meta );
 			if ( ! preg_match( '/^\*\*(?P<key>.+?):\*\*\s+(?P<value>.+)/', $meta, $matches ) ) {
-				fwrite( STDERR, "Parse error for meta line: $meta.\n" );
-				exit( __LINE__ );
+				error( "Parse error for meta line: $meta.", __LINE__ );
 			}
 
 			$unlinked_value = preg_replace( '/\[(.+?)]\(.+?\)/', '$1', $matches['value'] );
@@ -63,8 +92,7 @@ $readme_txt = (string) preg_replace_callback(
 				$license_uri = (string) preg_replace( '/\[.+?]\((.+?)\)/', '$1', $matches['value'] );
 
 				if ( ! str_starts_with( $license_uri, 'http' ) ) {
-					fwrite( STDERR, "Unable to extract License URI from: $meta.\n" );
-					exit( __LINE__ );
+					error( "Unable to extract License URI from: $meta.", __LINE__ );
 				}
 
 				$metadata['License URI'] = $license_uri;
@@ -81,8 +109,7 @@ $readme_txt = (string) preg_replace_callback(
 		);
 		foreach ( $expected_metadata as $key ) {
 			if ( empty( $metadata[ $key ] ) ) {
-				fwrite( STDERR, "Failed to parse metadata. Missing: $key\n" );
-				exit( __LINE__ );
+				error( "Failed to parse metadata. Missing: $key", __LINE__ );
 			}
 		}
 
@@ -110,8 +137,7 @@ $readme_txt            = (string) preg_replace_callback(
 	'/(?<=## Screenshots\n\n)(.+?)(?=## Changelog)/s',
 	static function ( $matches ) use ( &$screenshots_captioned ) {
 		if ( ! preg_match_all( '/### (.+)/', $matches[0], $screenshot_matches ) ) {
-			fwrite( STDERR, "Unable to parse screenshot headings.\n" );
-			exit( __LINE__ );
+			error( 'Unable to parse screenshot headings.', __LINE__ );
 		}
 
 		$screenshot_txt = '';
@@ -128,18 +154,16 @@ $readme_txt            = (string) preg_replace_callback(
 	$replace_count
 );
 if ( 0 === $replace_count ) {
-	fwrite( STDERR, "There are no screenshots.\n" );
+	warn( 'There are no screenshots.', __LINE__ );
 }
 
 $screenshot_files = glob( __DIR__ . '/../.wordpress-org/screenshot-*' );
 if ( ! is_array( $screenshot_files ) || count( $screenshot_files ) !== $screenshots_captioned ) {
-	fwrite( STDERR, "Number of screenshot files does not match number of screenshot captions.\n" );
-	exit( __LINE__ );
+	error( 'Number of screenshot files does not match number of screenshot captions.', __LINE__ );
 }
 foreach ( $screenshot_files as $i => $screenshot_file ) {
 	if ( 0 !== strpos( basename( $screenshot_file ), sprintf( 'screenshot-%d.', $i + 1 ) ) ) {
-		fwrite( STDERR, "Screenshot filename is not sequential: $screenshot_file.\n" );
-		exit( __LINE__ );
+		error( "Screenshot filename is not sequential: $screenshot_file.", __LINE__ );
 	}
 }
 
@@ -155,8 +179,7 @@ $readme_txt = (string) preg_replace_callback(
 		// ###: =
 		$txt_heading_level = 4 - $md_heading_level;
 		if ( $txt_heading_level <= 0 ) {
-			fwrite( STDERR, "Heading too small to transform: {$matches[0]}.\n" );
-			exit( __LINE__ );
+			error( "Heading too small to transform: {$matches[0]}.", __LINE__ );
 		}
 
 		return sprintf(
@@ -170,13 +193,11 @@ $readme_txt = (string) preg_replace_callback(
 	$replace_count
 );
 if ( 0 === $replace_count ) {
-	fwrite( STDERR, "Unable to transform headings.\n" );
-	exit( __LINE__ );
+	error( 'Unable to transform headings.', __LINE__ );
 }
 
 if ( ! file_put_contents( __DIR__ . '/../readme.txt', $readme_txt ) ) {
-	fwrite( STDERR, "Failed to write readme.txt.\n" );
-	exit( __LINE__ );
+	error( 'Failed to write readme.txt.', __LINE__ );
 }
 
-fwrite( STDOUT, "Validated README.md and generated readme.txt\n" );
+log( 'Validated README.md and generated readme.txt' );
