@@ -416,69 +416,12 @@ function export_script_module_data(): array {
  * @access private
  */
 function print_login_form_additions(): void {
-	?>
-	<style>
-		/* Button */
-		#nocache-bfcache-feature {
-			margin-left: 0.5em;
-			background: none;
-			border: none;
-			padding: 0;
-			line-height: 1;
-			min-height: auto;
-			cursor: help;
-		}
-		#nocache-bfcache-feature > svg {
-			display: inline-block;
-		}
-		@keyframes nocache-bfcache-throb {
-			0%, 100% {
-				transform: scale(0.9);
-			}
-			50% {
-				transform: scale(1);
-			}
-		}
-		@starting-style {
-			#nocache-bfcache-feature {
-				opacity: 0;
-			}
-		}
-		#nocache-bfcache-feature {
-			transform: translateY(0);
-			transition: opacity 1s ease-out;
-		}
-		#nocache-bfcache-feature svg {
-			transform: scale(0.9);
-			animation: nocache-bfcache-throb 2s ease-in-out 0.7s infinite;
-		}
+	printf(
+		'<style>%s</style>',
+		file_get_contents( __DIR__ . '/login-form.css' ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
 
-		/* Popover */
-		#nocache-bfcache-feature-info {
-			text-align: left;
-			margin: auto;
-			padding: 26px 24px;
-			font-weight: 400;
-			overflow: hidden;
-			background: #fff;
-			border: 1px solid #c3c4c7;
-			max-width: 320px;
-		}
-		#nocache-bfcache-feature-info::backdrop {
-			background: #000;
-			opacity: 0.5;
-		}
-		#nocache-bfcache-feature-info h2 {
-			font-size: 14px;
-		}
-		#nocache-bfcache-feature-info p {
-			margin-top: 1em;
-		}
-		#nocache-bfcache-feature-info p.action-row {
-			text-align: center;
-		}
-	</style>
-	<?php ob_start(); ?>
+	ob_start(); ?>
 	<script type="module">
 		// Add a hidden input that indicates JavaScript is enabled.
 		const input = document.createElement( 'input' );

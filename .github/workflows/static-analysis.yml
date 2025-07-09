@@ -96,6 +96,9 @@ jobs:
             - name: Run JavaScript linter
               run: npm run lint:js
 
+            - name: Run CSS linter
+              run: npm run lint:css
+
             - name: Check Composer configuration format
               run: composer normalize --dry-run
 
