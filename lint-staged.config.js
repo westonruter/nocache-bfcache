@@ -8,6 +8,7 @@ const config = {
 		() => 'composer normalize --dry-run',
 	],
 	'*.php': [ 'composer phpcs', () => 'composer phpstan' ],
+	'README.md': [ 'npm run transform-readme' ],
 };
 
 module.exports = config;
