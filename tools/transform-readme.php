@@ -87,7 +87,7 @@ $readme_txt = (string) preg_replace_callback(
 
 			$metadata[ $matches['key'] ] = $unlinked_value;
 
-			// Extract License URI from link.
+			// Extract License URI from the link.
 			if ( 'License' === $matches['key'] ) {
 				$license_uri = (string) preg_replace( '/\[.+?]\((.+?)\)/', '$1', $matches['value'] );
 
@@ -113,7 +113,7 @@ $readme_txt = (string) preg_replace_callback(
 			}
 		}
 
-		$replaced = "$header\n";
+		$replaced = "$header\n\n";
 		foreach ( $metadata as $key => $value ) {
 			$replaced .= "$key: $value\n";
 		}
@@ -134,13 +134,13 @@ $readme_txt = (string) preg_replace(
 // Fix up the screenshots.
 $screenshots_captioned = 0;
 $readme_txt            = (string) preg_replace_callback(
-	'/(?<=## Screenshots\n\n)(.+?)(?=## Changelog)/s',
+	'/(?P<heading>\n## Screenshots(?: ##)?\n+)(?P<body>.+?\n)(?=## Changelog)/s',
 	static function ( $matches ) use ( &$screenshots_captioned ) {
-		if ( ! preg_match_all( '/### (.+)/', $matches[0], $screenshot_matches ) ) {
+		if ( ! preg_match_all( '/^### (.+?)(?: ###)?$/m', $matches['body'], $screenshot_matches ) ) {
 			error( 'Unable to parse screenshot headings.', __LINE__ );
 		}
 
-		$screenshot_txt = '';
+		$screenshot_txt = $matches['heading'];
 		foreach ( $screenshot_matches[1] as $i => $screenshot_caption ) {
 			$screenshot_txt .= sprintf( "%d. %s\n", $i + 1, $screenshot_caption );
 			$screenshots_captioned++;
@@ -167,9 +167,9 @@ foreach ( $screenshot_files as $i => $screenshot_file ) {
 	}
 }
 
-// Convert markdown headings into WP readme headings for good measure.
+// Convert Markdown headings into WP readme headings for good measure.
 $readme_txt = (string) preg_replace_callback(
-	'/^(#+)\s(.+)/m',
+	'/^(#+)\s(.+?)(\s\1)?$/m',
 	static function ( $matches ) {
 		$md_heading_level = strlen( $matches[1] );
 		$heading_text     = $matches[2];
@@ -179,7 +179,7 @@ $readme_txt = (string) preg_replace_callback(
 		// ###: =
 		$txt_heading_level = 4 - $md_heading_level;
 		if ( $txt_heading_level <= 0 ) {
-			error( "Heading too small to transform: {$matches[0]}.", __LINE__ );
+			error( "Heading too small to transform: $matches[0].", __LINE__ );
 		}
 
 		return sprintf(
