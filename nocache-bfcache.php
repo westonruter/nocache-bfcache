@@ -51,13 +51,19 @@ const VERSION = '1.0.0';
 const LOGIN_BROADCAST_CHANNEL_NAME = 'nocache_bfcache_login';
 
 /**
- * Name for the hidden input field that captures whether JavaScript is enabled when logging in.
+ * Name for the cookie which captures whether JavaScript is enabled when logging in.
+ *
+ * This is similar in principle to the `wordpress_test_cookie` cookie. There is no way of knowing when WordPress serves
+ * a request in PHP whether JavaScript is enabled on the client. In the same way that there is a `Sec-CH-UA-Mobile`
+ * header, it would be nice if there was a User-Agent Client Hints header like `Sec-CH-UA-Scripting` that could be used
+ * for this purpose, but it doesn't exist, and apparently it hasn't been proposed from looking at
+ * [WICG/ua-client-hints](https://github.com/WICG/ua-client-hints).
  *
  * @since 1.1.0
  * @access private
  * @var string
  */
-const JAVASCRIPT_ENABLED_INPUT_FIELD_NAME = 'nocache_bfcache_javascript_enabled';
+const JAVASCRIPT_ENABLED_COOKIE_NAME = 'nocache_bfcache_js_enabled';
 
 /**
  * User session key for the bfcache session token.
@@ -109,7 +115,7 @@ function attach_session_information( $session ): array {
 	if ( ! is_array( $session ) ) {
 		$session = array();
 	}
-	if ( isset( $_POST['rememberme'] ) && isset( $_POST[ JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if ( isset( $_POST['rememberme'] ) && isset( $_COOKIE[ JAVASCRIPT_ENABLED_COOKIE_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] = generate_bfcache_session_token();
 	}
 	return $session;
@@ -434,12 +440,17 @@ add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_login_form_styles
 function print_login_form_additions(): void {
 	ob_start(); ?>
 	<script type="module">
-		// Add a hidden input that indicates JavaScript is enabled.
-		const input = document.createElement( 'input' );
-		input.type = 'hidden';
-		input.name = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_INPUT_FIELD_NAME ); ?>;
-		input.value = '1';
-		document.getElementById( 'loginform' ).appendChild( input );
+		/*
+		 * Set a cookie which demonstrates that JavaScript is currently enabled. This cookie only needs to live until
+		 * the 'attach_session_information' filter in PHP runs upon successful login.
+		 */
+		const cookieName = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_COOKIE_NAME ); ?>;
+		const cookiePath = <?php echo wp_json_encode( COOKIEPATH ); ?>;
+		const siteCookiePath = <?php echo wp_json_encode( SITECOOKIEPATH ); ?>;
+		document.cookie = `${cookieName}=1; path=${ cookiePath }`;
+		if ( cookiePath !== siteCookiePath ) {
+			document.cookie = `${cookieName}=1; path=${ siteCookiePath }`;
+		}
 
 		// Add a button that opens a popover with information about the instant navigation feature.
 		const p = document.querySelector( 'p.forgetmenot:has(> input#rememberme ):has(> label:last-child[for="rememberme"] )' );
