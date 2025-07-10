@@ -428,39 +428,13 @@ function enqueue_login_form_styles(): void {
 add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_login_form_styles' );
 
 /**
- * Augments the login form with a hidden input field when JavaScript is enabled and a popover to promote the feature.
- *
- * Only when JavaScript is enabled will the bfcache session token cookie be set, and only when this cookie is set will
- * the `no-store` directive be removed from the `Cache-Control` response header. This is important because the pages in
- * bfcache can only be invalidated (once the user logs out) when JavaScript is enabled.
+ * Augments the login form with a popover to promote the feature.
  *
  * @since 1.1.0
  * @access private
  */
-function print_login_form_additions(): void {
-	ob_start(); ?>
-	<script type="module">
-		/*
-		 * Set a cookie which demonstrates that JavaScript is currently enabled. This cookie only needs to live until
-		 * the 'attach_session_information' filter in PHP runs upon successful login.
-		 */
-		const cookieName = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_COOKIE_NAME ); ?>;
-		const cookiePath = <?php echo wp_json_encode( COOKIEPATH ); ?>;
-		const siteCookiePath = <?php echo wp_json_encode( SITECOOKIEPATH ); ?>;
-		document.cookie = `${cookieName}=1; path=${ cookiePath }`;
-		if ( cookiePath !== siteCookiePath ) {
-			document.cookie = `${cookieName}=1; path=${ siteCookiePath }`;
-		}
-
-		// Add a button that opens a popover with information about the instant navigation feature.
-		const p = document.querySelector( 'p.forgetmenot:has(> input#rememberme ):has(> label:last-child[for="rememberme"] )' );
-		if ( p ) {
-			const tmpl = /** @type {HTMLTemplateElement} */ ( document.getElementById( 'nocache-bfcache-feature-button-tmpl' ) );
-			const button = tmpl.content.firstElementChild.cloneNode( true );
-			p.append( button );
-		}
-	</script>
-	<?php print_inline_script_tag_from_html( (string) ob_get_clean() ); ?>
+function print_login_form_remember_me_popover(): void {
+	?>
 	<template id="nocache-bfcache-feature-button-tmpl">
 		<button id="nocache-bfcache-feature" popovertarget="nocache-bfcache-feature-info" type="button" class="button-secondary" aria-label="<?php esc_attr_e( 'New feature', 'nocache-bfcache' ); ?>">
 			<!-- Source: https://s.w.org/images/core/emoji/16.0.1/svg/2728.svg -->
@@ -477,7 +451,45 @@ function print_login_form_additions(): void {
 	<?php
 }
 
-add_action( 'login_form', __NAMESPACE__ . '\print_login_form_additions' );
+add_action( 'login_form', __NAMESPACE__ . '\print_login_form_remember_me_popover' );
+
+/**
+ * Prints a script on the login screen to set a cookie to indicate that JavaScript is enabled.
+ *
+ * This sets a cookie which demonstrates that JavaScript is currently enabled. This cookie only needs to live until
+ * the 'attach_session_information' filter in PHP runs upon successful login. Only when JavaScript is enabled will the
+ * bfcache session token cookie be set, and only when this cookie is set will the `no-store` directive be removed from
+ * the `Cache-Control` response header. This is important because the pages in bfcache can only be invalidated (once the
+ * user logs out) when JavaScript is enabled.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function print_js_enabled_cookie_script(): void {
+	ob_start();
+	?>
+	<script type="module">
+		const cookieName = <?php echo wp_json_encode( JAVASCRIPT_ENABLED_COOKIE_NAME ); ?>;
+		const cookiePath = <?php echo wp_json_encode( COOKIEPATH ); ?>;
+		const siteCookiePath = <?php echo wp_json_encode( SITECOOKIEPATH ); ?>;
+		document.cookie = `${cookieName}=1; path=${ cookiePath }`;
+		if ( cookiePath !== siteCookiePath ) {
+			document.cookie = `${cookieName}=1; path=${ siteCookiePath }`;
+		}
+
+		// Add a button that opens a popover with information about the instant navigation feature.
+		const p = document.querySelector( 'p.forgetmenot:has(> input#rememberme ):has(> label:last-child[for="rememberme"] )' );
+		if ( p ) {
+			const tmpl = /** @type {HTMLTemplateElement} */ ( document.getElementById( 'nocache-bfcache-feature-button-tmpl' ) );
+			const button = tmpl.content.firstElementChild.cloneNode( true );
+			p.append( button );
+		}
+	</script>
+	<?php
+	print_inline_script_tag_from_html( (string) ob_get_clean() );
+}
+
+add_action( 'login_footer', __NAMESPACE__ . '\print_js_enabled_cookie_script' );
 
 /**
  * Prints a script on the login screen to broadcast that the screen has been accessed to invalidate the bfcache.
