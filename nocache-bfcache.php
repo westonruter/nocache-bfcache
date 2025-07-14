@@ -340,3 +340,4 @@ add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
 
 require_once __DIR__ . '/bfcache-opt-in.php';
 require_once __DIR__ . '/script-loader.php';
+require_once __DIR__ . '/bfcache-invalidation.php';
