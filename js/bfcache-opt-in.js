@@ -14,7 +14,7 @@
 
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById(
-		'wp-script-module-data-@westonruter/bfcache-opt-in'
+		'wp-script-module-data-@nocache-bfcache/bfcache-opt-in'
 	)
 );
 

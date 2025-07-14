@@ -26,7 +26,7 @@
 
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById(
-		'wp-script-module-data-@westonruter/bfcache-invalidation-via-broadcast-channel'
+		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-broadcast-channel'
 	)
 );
 

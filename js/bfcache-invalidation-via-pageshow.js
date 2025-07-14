@@ -15,7 +15,7 @@
 
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById(
-		'wp-script-module-data-@westonruter/bfcache-invalidation-via-pageshow'
+		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-pageshow'
 	)
 );
 

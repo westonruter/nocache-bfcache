@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @access private
  * @var string
  */
-const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@westonruter/bfcache-opt-in';
+const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-opt-in';
 
 /**
  * Script module ID for bfcache invalidation via the pageshow event.
@@ -28,7 +28,7 @@ const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@westonruter/bfcache-opt-in';
  * @access private
  * @var string
  */
-const BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID = '@westonruter/bfcache-invalidation-via-pageshow';
+const BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-pageshow';
 
 /**
  * Script module ID for bfcache invalidation via Broadcast Channel.
@@ -37,7 +37,7 @@ const BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID = '@westonruter/bfcache
  * @access private
  * @var string
  */
-const BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID = '@westonruter/bfcache-invalidation-via-broadcast-channel';
+const BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-broadcast-channel';
 
 /**
  * Broadcast channel name for when an unauthenticated user lands on the login screen.
@@ -152,8 +152,8 @@ function enqueue_bfcache_opt_in_script_module_and_style(): void {
 	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
 
 	wp_enqueue_style(
-		'nocache-bfcache-login-form',
-		plugins_url( 'login-form.css', __FILE__ ),
+		'nocache-bfcache-opt-in',
+		plugins_url( 'css/bfcache-opt-in.css', __FILE__ ),
 		array(),
 		VERSION
 	);
