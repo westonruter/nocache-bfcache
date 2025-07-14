@@ -57,7 +57,7 @@ const initialSessionToken = getCurrentSessionToken();
 /**
  * Reloads the page when navigating to a page via bfcache and the session has changed.
  *
- * This seems to only be needed by Safari since Chrome, Edge, and Firefox evict pages from bfcache when the login screen
+ * This seems to only be needed by Safari since Chrome, Edge, and Firefox all evict pages from bfcache when the login screen
  * messages are received via BroadcastChannel, in which case the "broadcastchannel-message" blocking reason occurs.
  *
  * @param {PageTransitionEvent} event - The pageshow event object.
