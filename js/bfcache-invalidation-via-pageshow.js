@@ -1,8 +1,21 @@
-// This is a JavaScript module, so the global namespace is not polluted.
+/**
+ * Invalidates bfcache via the pageshow event.
+ *
+ * When a user authenticates, a session token is set on a cookie which can be read by JavaScript. Thereafter, when an
+ * authenticated page is loaded, the value of the cookie is captured in a local variable. When a user navigates back to
+ * an authenticated page via bfcache (detected via the `pageshow` event handler with `persisted` property set to true),
+ * if the current cookie's value does not match the previously captured value, then JavaScript forcibly reloads the
+ * page. When a new user logs in, a different session token is stored in the cookie; when a user logs out, this cookie
+ * is cleared. This ensures that an authenticated page loaded for a specific user is able to be restored from bfcache.
+ *
+ * This is a JavaScript module, so the global namespace is not polluted.
+ *
+ * @since 1.0.0
+ */
 
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById(
-		'wp-script-module-data-@westonruter/bfcache-invalidation'
+		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-pageshow'
 	)
 );
 
