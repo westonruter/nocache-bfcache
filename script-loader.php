@@ -22,6 +22,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-opt-in';
 
 /**
+ * Style handle for the bfcache opt-in.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
+
+/**
  * Script module ID for bfcache invalidation via the pageshow event.
  *
  * @since 1.1.0
@@ -85,6 +94,24 @@ function register_script_modules(): void {
 add_action( 'init', __NAMESPACE__ . '\register_script_modules' );
 
 /**
+ * Registers styles.
+ *
+ * @since 1.1.0
+ * @access private
+ */
+function register_styles(): void {
+
+	wp_register_style(
+		BFCACHE_OPT_IN_STYLE_HANDLE,
+		plugins_url( 'css/bfcache-opt-in.css', __FILE__ ),
+		array(),
+		VERSION
+	);
+}
+
+add_action( 'init', __NAMESPACE__ . '\register_styles' );
+
+/**
  * Enqueues script modules to invalidate bfcache.
  *
  * These script modules are only enqueued when the user is logged in and had opted in to bfcache via electing to
@@ -99,7 +126,22 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	}
 
 	wp_enqueue_script_module( BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID );
+	export_script_module_data(
+		BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID,
+		array(
+			'cookieName'                => get_bfcache_session_token_cookie_name(),
+			'loginBroadcastChannelName' => LOGIN_BROADCAST_CHANNEL_NAME,
+			'debug'                     => WP_DEBUG,
+		)
+	);
+
 	wp_enqueue_script_module( BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID );
+	export_script_module_data(
+		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID,
+		array(
+			'channelName' => LOGIN_BROADCAST_CHANNEL_NAME,
+		)
+	);
 }
 
 foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_controls_enqueue_scripts' ) as $_action ) {
@@ -109,56 +151,23 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
 /**
  * Exports script module data.
  *
- * @since 1.0.0
- * @access private
- */
-function export_script_module_data(): void {
-	$data = array(
-		BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID => array(
-			'cookieName'                => get_bfcache_session_token_cookie_name(),
-			'loginBroadcastChannelName' => LOGIN_BROADCAST_CHANNEL_NAME,
-			'debug'                     => WP_DEBUG,
-		),
-		BFCACHE_OPT_IN_SCRIPT_MODULE_ID                    => array(
-			'cookieName'       => JAVASCRIPT_ENABLED_COOKIE_NAME,
-			'buttonTemplateId' => BUTTON_TEMPLATE_ID,
-			'cookiePath'       => COOKIEPATH,
-			'siteCookiePath'   => SITECOOKIEPATH,
-		),
-		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID => array(
-			'channelName' => LOGIN_BROADCAST_CHANNEL_NAME,
-		),
-	);
-
-	foreach ( $data as $module_id => $module_data ) {
-		add_filter(
-			"script_module_data_{$module_id}",
-			static function () use ( $module_data ): array {
-				return $module_data;
-			}
-		);
-	}
-}
-
-add_action( 'init', __NAMESPACE__ . '\export_script_module_data' );
-
-/**
- * Enqueues bfcache opt-in script module and style.
+ * This helper function provides an interface similar to `wp_script_add_data()` for exporting data from PHP to JS. See
+ * [prior discussion](https://github.com/WordPress/wordpress-develop/pull/6682#discussion_r1624822067).
  *
  * @since 1.1.0
  * @access private
+ *
+ * @param non-empty-string               $module_id   Module ID.
+ * @param non-empty-array<string, mixed> $module_data Module data.
  */
-function enqueue_bfcache_opt_in_script_module_and_style(): void {
-	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
-
-	wp_enqueue_style(
-		'nocache-bfcache-opt-in',
-		plugins_url( 'css/bfcache-opt-in.css', __FILE__ ),
-		array(),
-		VERSION
+function export_script_module_data( string $module_id, array $module_data ): void {
+	add_filter(
+		"script_module_data_{$module_id}",
+		static function () use ( $module_data ): array {
+			return $module_data;
+		}
 	);
 }
-add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_bfcache_opt_in_script_module_and_style' );
 
 /**
  * Adds missing hooks to print script modules in the Customizer and login screen if they are enqueued.
