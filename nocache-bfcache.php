@@ -37,16 +37,25 @@ if ( defined( 'BFCACHE_SESSION_TOKEN_COOKIE' ) || function_exists( 'wp_enqueue_b
 const VERSION = '1.0.0';
 
 /**
+ * Plugin file.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const PLUGIN_FILE = __FILE__;
+
+/**
  * Script and style registration.
  */
-require_once __DIR__ . '/script-loader.php';
+require_once __DIR__ . '/includes/script-loader.php';
 
 /**
  * User opt-in for BFCache.
  */
-require_once __DIR__ . '/bfcache-opt-in.php';
+require_once __DIR__ . '/includes/bfcache-opt-in.php';
 
 /**
  * Invalidating pages from bfcache.
  */
-require_once __DIR__ . '/bfcache-invalidation.php';
+require_once __DIR__ . '/includes/bfcache-invalidation.php';

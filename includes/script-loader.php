@@ -60,7 +60,7 @@ function register_script_modules(): void {
 
 	wp_register_script_module(
 		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
-		plugins_url( 'js/bfcache-opt-in.js', __FILE__ ),
+		plugins_url( 'js/bfcache-opt-in.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
@@ -68,7 +68,7 @@ function register_script_modules(): void {
 	// This is used by Chrome and Firefox. TODO: Actually, this doesn't seem to be the case!
 	wp_register_script_module(
 		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID,
-		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel.js', __FILE__ ),
+		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
@@ -76,7 +76,7 @@ function register_script_modules(): void {
 	// This is only needed by Safari.
 	wp_register_script_module(
 		BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID,
-		plugins_url( 'js/bfcache-invalidation-via-pageshow.js', __FILE__ ),
+		plugins_url( 'js/bfcache-invalidation-via-pageshow.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
@@ -94,7 +94,7 @@ function register_styles(): void {
 
 	wp_register_style(
 		BFCACHE_OPT_IN_STYLE_HANDLE,
-		plugins_url( 'css/bfcache-opt-in.css', __FILE__ ),
+		plugins_url( 'css/bfcache-opt-in.css', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
