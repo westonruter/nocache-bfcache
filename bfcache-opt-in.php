@@ -238,18 +238,20 @@ function is_logged_in_cookie_secure( int $user_id ): bool {
  * @since 1.1.0
  * @access private
  *
- * @param int    $user_id               User ID.
- * @param string $bfcache_session_token Bfcache session token.
- * @param int    $expire                Expiration time.
+ * @phpstan-param int<1752496038, max> $expire The minimum value is the timestamp at which this code was written.
+ *
+ * @param positive-int     $user_id               User ID.
+ * @param non-empty-string $bfcache_session_token Bfcache session token.
+ * @param int              $expire                Expiration time as a Unix timestamp.
  */
 function set_bfcache_session_token_cookie( int $user_id, string $bfcache_session_token, int $expire ): void {
 	$cookie_name = get_bfcache_session_token_cookie_name();
 
 	// The cookies are intentionally not HTTP-only.
 	$secure_logged_in_cookie = is_logged_in_cookie_secure( $user_id );
-	setcookie( $cookie_name, $bfcache_session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
+	setcookie( $cookie_name, $bfcache_session_token, $expire, COOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $bfcache_session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
+		setcookie( $cookie_name, $bfcache_session_token, $expire, SITECOOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	}
 }
 
@@ -260,14 +262,17 @@ function set_bfcache_session_token_cookie( int $user_id, string $bfcache_session
  * @access private
  * @see \wp_set_auth_cookie()
  *
- * @param string $logged_in_cookie The logged-in cookie value.
- * @param int    $expire           The time the login grace period expires as a UNIX timestamp.
- *                                 Default is 12 hours past the cookie's expiration time.
- * @param int    $expiration       The time when the logged-in authentication cookie expires as a UNIX timestamp.
- *                                 Default is 14 days from now.
- * @param int    $user_id          User ID.
- * @param string $scheme           Authentication scheme. Default 'logged_in'.
- * @param string $token            User's session token to use for this cookie. Empty string when clearing cookies.
+ * @phpstan-param int<1752496038, max> $expire     The minimum value is the timestamp at which this code was written.
+ * @phpstan-param int<1752496038, max> $expiration The minimum value is the timestamp at which this code was written.
+ *
+ * @param non-empty-string $logged_in_cookie The logged-in cookie value.
+ * @param int              $expire           The time the login grace period expires as a UNIX timestamp.
+ *                                           Default is 12 hours past the cookie's expiration time.
+ * @param int              $expiration       The time when the logged-in authentication cookie expires as a UNIX timestamp.
+ *                                               Default is 14 days from now.
+ * @param positive-int     $user_id          User ID.
+ * @param string           $scheme           Authentication scheme. Default 'logged_in'.
+ * @param non-empty-string $token            User's session token to use for this cookie. Empty string when clearing cookies.
  */
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme, string $token ): void {
 	unset( $logged_in_cookie, $expire, $scheme ); // Unused args.
@@ -345,7 +350,25 @@ function filter_nocache_headers( $headers ): array {
 		// the user has elected to "Remember Me".
 		$cookie_name = get_bfcache_session_token_cookie_name();
 		if ( ! isset( $_COOKIE[ $cookie_name ] ) ) {
-			set_bfcache_session_token_cookie( get_current_user_id(), $bfcache_session_token, 14 * DAY_IN_SECONDS );
+			/**
+			 * Current user ID.
+			 *
+			 * This will be a positive int because of the logged-in check above.
+			 *
+			 * @var positive-int $user_id
+			 */
+			$user_id = get_current_user_id();
+
+			/**
+			 * Current time in Unix time.
+			 *
+			 * The minimum value is the timestamp at which this code was written.
+			 *
+			 * @var int<1752496038, max> $now
+			 */
+			$now = time();
+
+			set_bfcache_session_token_cookie( $user_id, $bfcache_session_token, $now + 14 * DAY_IN_SECONDS );
 		}
 	}
 
