@@ -238,18 +238,18 @@ function is_logged_in_cookie_secure( int $user_id ): bool {
  * @since 1.1.0
  * @access private
  *
- * @param int    $user_id       User ID.
- * @param string $session_token Bfcache session token.
- * @param int    $expire        Expiration time.
+ * @param int    $user_id               User ID.
+ * @param string $bfcache_session_token Bfcache session token.
+ * @param int    $expire                Expiration time.
  */
-function set_bfcache_session_token_cookie( int $user_id, string $session_token, int $expire ): void {
+function set_bfcache_session_token_cookie( int $user_id, string $bfcache_session_token, int $expire ): void {
 	$cookie_name = get_bfcache_session_token_cookie_name();
 
 	// The cookies are intentionally not HTTP-only.
 	$secure_logged_in_cookie = is_logged_in_cookie_secure( $user_id );
-	setcookie( $cookie_name, $session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
+	setcookie( $cookie_name, $bfcache_session_token, time() + $expire, COOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	if ( COOKIEPATH !== SITECOOKIEPATH ) {
-		setcookie( $cookie_name, $session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
+		setcookie( $cookie_name, $bfcache_session_token, time() + $expire, SITECOOKIEPATH, COOKIE_DOMAIN, $secure_logged_in_cookie, false );
 	}
 }
 
@@ -272,9 +272,9 @@ function set_bfcache_session_token_cookie( int $user_id, string $session_token, 
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme, string $token ): void {
 	unset( $logged_in_cookie, $expire, $scheme ); // Unused args.
 
-	$session_token = get_user_bfcache_session_token( $user_id, $token );
-	if ( null !== $session_token ) {
-		set_bfcache_session_token_cookie( $user_id, $session_token, $expiration );
+	$bfcache_session_token = get_user_bfcache_session_token( $user_id, $token );
+	if ( null !== $bfcache_session_token ) {
+		set_bfcache_session_token_cookie( $user_id, $bfcache_session_token, $expiration );
 	}
 }
 
