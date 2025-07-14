@@ -42,13 +42,22 @@ const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
 const BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-pageshow';
 
 /**
- * Script module ID for bfcache invalidation via Broadcast Channel.
+ * Script module ID for bfcache invalidation via Broadcast Channel (emitter).
  *
  * @since 1.1.0
  * @access private
  * @var string
  */
-const BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-broadcast-channel';
+const BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-emitter';
+
+/**
+ * Script module ID for bfcache invalidation via Broadcast Channel (listener).
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-listener';
 
 /**
  * Registers script modules.
@@ -65,10 +74,16 @@ function register_script_modules(): void {
 		VERSION
 	);
 
-	// This is used by Chrome and Firefox. TODO: Actually, this doesn't seem to be the case!
+	// This is used by Chrome and Firefox.
 	wp_register_script_module(
-		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID,
-		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel.js', PLUGIN_FILE ),
+		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER_SCRIPT_MODULE_ID,
+		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel-emitter.js', PLUGIN_FILE ),
+		array(),
+		VERSION
+	);
+	wp_register_script_module(
+		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER_SCRIPT_MODULE_ID,
+		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel-listener.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
