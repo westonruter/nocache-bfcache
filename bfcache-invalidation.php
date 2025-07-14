@@ -1,6 +1,6 @@
 <?php
 /**
- * Logic for invalidating pages from bfcache.
+ * Invalidating pages from bfcache.
  *
  * @since 1.1.0
  * @package WestonRuter\NocacheBFCache

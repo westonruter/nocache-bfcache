@@ -1,6 +1,6 @@
 <?php
 /**
- * Script loader for Nocache BFCache.
+ * Script and style registration.
  *
  * No scripts or styles are actually enqueued in this file. They are merely registered here.
  *
