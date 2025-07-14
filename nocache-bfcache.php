@@ -415,7 +415,7 @@ function register_script_modules(): void {
 		VERSION
 	);
 
-	// This is used by Chrome, Edge, and Firefox. TODO: Confirm.
+	// This is used by Chrome and Firefox. TODO: Actually, this doesn't seem to be the case!
 	wp_register_script_module(
 		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_SCRIPT_MODULE_ID,
 		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel.js', __FILE__ ),

@@ -6,6 +6,8 @@
  * Chrome and Firefox. This behavior has been [proposed](https://github.com/whatwg/html/issues/7253#issuecomment-2632953500)
  * for standardization.
  *
+ * TODO: In previous testing this seemed to work, but now it is not working in Chrome or Firefox either, puzzlingly.
+ *
  * Technically, this message only should be broadcast if an unauthenticated user lands on this screen, since an
  * authenticated user could decide to not go ahead with logging in as another user (without first logging out). However,
  * to achieve this, a script would need to run on the first page accessed after logging in to broadcast the message.
@@ -16,6 +18,7 @@
  *
  * @since 1.1.0
  *
+ * @see {@link https://issues.chromium.org/issues/40258982}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#broadcastchannel-message}
  * @see {@link https://github.com/whatwg/html/issues/7253#issuecomment-2632953500}
  * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js}
