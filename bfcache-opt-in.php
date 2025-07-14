@@ -179,8 +179,8 @@ add_filter( 'attach_session_information', __NAMESPACE__ . '\attach_session_infor
  * @since 1.1.0
  * @access private
  *
- * @param int|null    $user_id       User ID. Defaults to the current user ID.
- * @param string|null $session_token Session token. Defaults to the current session token.
+ * @param positive-int|null     $user_id       User ID. Defaults to the current user ID.
+ * @param non-empty-string|null $session_token Session token. Defaults to the current session token.
  * @return non-empty-string|null Bfcache session token if available.
  */
 function get_user_bfcache_session_token( ?int $user_id = null, ?string $session_token = null ): ?string {
@@ -215,7 +215,7 @@ function get_user_bfcache_session_token( ?int $user_id = null, ?string $session_
  * @access private
  * @link https://github.com/WordPress/wordpress-develop/blob/f1d5beb452bda5035faaf1ab8a6c8c80c8ccd5d5/src/wp-includes/pluggable.php#L1010-L1036
  *
- * @param int $user_id User ID.
+ * @param positive-int $user_id User ID.
  * @return bool Whether the logged_in_cookie is secure.
  */
 function is_logged_in_cookie_secure( int $user_id ): bool {
@@ -271,7 +271,7 @@ function set_bfcache_session_token_cookie( int $user_id, string $bfcache_session
  * @param int              $expiration       The time when the logged-in authentication cookie expires as a UNIX timestamp.
  *                                               Default is 14 days from now.
  * @param positive-int     $user_id          User ID.
- * @param string           $scheme           Authentication scheme. Default 'logged_in'.
+ * @param non-empty-string $scheme           Authentication scheme. Default 'logged_in'.
  * @param non-empty-string $token            User's session token to use for this cookie. Empty string when clearing cookies.
  */
 function set_logged_in_cookie( string $logged_in_cookie, int $expire, int $expiration, int $user_id, string $scheme, string $token ): void {
