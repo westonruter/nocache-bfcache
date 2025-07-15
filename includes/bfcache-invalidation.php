@@ -41,9 +41,8 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	export_script_module_data(
 		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_PAGESHOW,
 		array(
-			'cookieName'                => get_bfcache_session_token_cookie_name(),
-			'loginBroadcastChannelName' => LOGIN_BROADCAST_CHANNEL_NAME,
-			'debug'                     => WP_DEBUG,
+			'cookieName' => get_bfcache_session_token_cookie_name(),
+			'debug'      => WP_DEBUG,
 		)
 	);
 
