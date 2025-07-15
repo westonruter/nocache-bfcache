@@ -81,7 +81,6 @@ function register_styles(): void {
 
 add_action( 'init', __NAMESPACE__ . '\register_styles' );
 
-
 /**
  * Exports script module data.
  *
@@ -91,8 +90,8 @@ add_action( 'init', __NAMESPACE__ . '\register_styles' );
  * @since 1.1.0
  * @access private
  *
- * @param non-empty-string                        $module_id   Module ID.
- * @param non-empty-array<non-empty-array, mixed> $module_data Module data.
+ * @param non-empty-string                         $module_id   Module ID.
+ * @param non-empty-array<non-empty-string, mixed> $module_data Module data.
  */
 function export_script_module_data( string $module_id, array $module_data ): void {
 	add_filter(
