@@ -2,7 +2,7 @@
 /**
  * Plugin Name: No-cache BFCache
  * Plugin URI: https://github.com/westonruter/nocache-bfcache
- * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in.
+ * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in. <strong>To see the effect, you must log out and log back in again, ensuring "Remember Me" is checked.</strong>
  * Requires at least: 6.8
  * Requires PHP: 7.2
  * Version: 1.0.0
@@ -44,6 +44,11 @@ const VERSION = '1.0.0';
  * @var string
  */
 const PLUGIN_FILE = __FILE__;
+
+/**
+ * Interface containing constants for script module IDs.
+ */
+require_once __DIR__ . '/includes/interface-script-module-ids.php';
 
 /**
  * Script and style registration.

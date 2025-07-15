@@ -1,12 +1,9 @@
 /**
  * Invalidates bfcache via Broadcast Channel.
  *
- * When a page is subscribed to messages from a given BroadcastChannel, a message received while it is in bfcache
- * results in the page being evicted from the bfcache with a "broadcastchannel-message" blocking reason, at least in
- * Chrome and Firefox. This behavior has been [proposed](https://github.com/whatwg/html/issues/7253#issuecomment-2632953500)
- * for standardization.
- *
- * TODO: In previous testing this seemed to work, but now it is not working in Chrome or Firefox either, puzzlingly.
+ * When a page listens to messages from a given Broadcast Channel, a message received while it is in bfcache
+ * results in the page being evicted from bfcache, at least in Chrome, Edge, and Firefox. This behavior has been
+ * [proposed](https://github.com/whatwg/html/issues/7253#issuecomment-2632953500) for standardization.
  *
  * Technically, this message only should be broadcast if an unauthenticated user lands on this screen, since an
  * authenticated user could decide to not go ahead with logging in as another user (without first logging out). However,
@@ -24,10 +21,11 @@
  * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js}
  */
 
+const moduleId =
+	'@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-emitter';
+
 const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById(
-		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-broadcast-channel'
-	)
+	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
 /**
