@@ -37,9 +37,9 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 		return;
 	}
 
-	wp_enqueue_script_module( BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID );
+	wp_enqueue_script_module( Script_Module_Ids::BFCACHE_INVALIDATION_VIA_PAGESHOW );
 	export_script_module_data(
-		BFCACHE_INVALIDATION_VIA_PAGESHOW_SCRIPT_MODULE_ID,
+		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_PAGESHOW,
 		array(
 			'cookieName'                => get_bfcache_session_token_cookie_name(),
 			'loginBroadcastChannelName' => LOGIN_BROADCAST_CHANNEL_NAME,
@@ -47,9 +47,9 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 		)
 	);
 
-	wp_enqueue_script_module( BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER_SCRIPT_MODULE_ID );
+	wp_enqueue_script_module( Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER );
 	export_script_module_data(
-		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER_SCRIPT_MODULE_ID,
+		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER,
 		array(
 			'channelName' => LOGIN_BROADCAST_CHANNEL_NAME,
 		)
@@ -67,9 +67,9 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * @access private
  */
 function enqueue_bfcache_invalidation_via_broadcast_channel_emitter_script_module(): void {
-	wp_enqueue_script_module( BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER_SCRIPT_MODULE_ID );
+	wp_enqueue_script_module( Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER );
 	export_script_module_data(
-		BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER_SCRIPT_MODULE_ID,
+		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER,
 		array(
 			'channelName' => LOGIN_BROADCAST_CHANNEL_NAME,
 		)
