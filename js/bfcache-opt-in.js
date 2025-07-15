@@ -13,10 +13,10 @@
  * @since 1.1.0
  */
 
+const moduleId = '@nocache-bfcache/bfcache-opt-in';
+
 const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById(
-		'wp-script-module-data-@nocache-bfcache/bfcache-opt-in'
-	)
+	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
 /**

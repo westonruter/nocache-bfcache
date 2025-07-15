@@ -21,10 +21,11 @@
  * This is a JavaScript module, so the global namespace is not polluted.
  */
 
+const moduleId =
+	'@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-listener';
+
 const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById(
-		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-listener'
-	)
+	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
 /**

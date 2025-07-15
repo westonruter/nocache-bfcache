@@ -21,10 +21,11 @@
  * @see {@link https://github.com/mozilla-firefox/firefox/blob/dc64a7e82ff4e2e31b7dafaaa0a9599640a2c87c/testing/web-platform/tests/html/browsers/browsing-the-web/back-forward-cache/broadcastchannel/evict-on-message.tentative.window.js}
  */
 
+const moduleId =
+	'@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-emitter';
+
 const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById(
-		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-broadcast-channel-emitter'
-	)
+	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
 /**

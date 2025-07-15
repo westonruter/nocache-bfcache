@@ -19,10 +19,10 @@
  * @since 1.0.0
  */
 
+const moduleId = '@nocache-bfcache/bfcache-invalidation-via-pageshow';
+
 const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById(
-		'wp-script-module-data-@nocache-bfcache/bfcache-invalidation-via-pageshow'
-	)
+	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
 const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
