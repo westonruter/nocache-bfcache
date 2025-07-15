@@ -1,13 +1,15 @@
 /**
  * Listens for a message broadcast from the login screen to invalidate pages in bfcache.
  *
- * When a page in bfcache receives a message from a BroadcastChannel, the page may be automatically be blocked from being
- * restored. This ensures that if another user logs in that they are not able to go back to access an authenticated page
- * for the previously authenticated user. For browsers that do not support this bfcache eviction mechanism, invalidation
- * is handled separately via a `pageshow` event handler. In Chrome DevTools, the bfcache error code here
+ * When a page in bfcache receives a message from a BroadcastChannel, the page is automatically be evicted from bfcache
+ * in Chrome, Edge, and Firefox. This ensures that if another user logs in that they are not able to go back to access
+ * an authenticated page for the previously authenticated user. In Chrome DevTools, the bfcache error code here
  * is `BroadcastChannelOnMessage`. In the PerformanceObserver, this is exposed in `notRestoredReasons` as the
  * "broadcastchannel-message" blocking reason. Chrome, Edge, and Firefox all seem to have implemented this, but Safari
  * has not.
+ *
+ * For browsers that do not support this bfcache eviction mechanism, invalidation is handled separately via a `pageshow`
+ * event handler.
  *
  * @since 1.1.0
  *

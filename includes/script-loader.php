@@ -38,7 +38,7 @@ function register_script_modules(): void {
 		VERSION
 	);
 
-	// This is used by Chrome and Firefox.
+	// This is used by Chrome, Edge, and Firefox.
 	wp_register_script_module(
 		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER,
 		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel-emitter.js', PLUGIN_FILE ),
@@ -52,7 +52,8 @@ function register_script_modules(): void {
 		VERSION
 	);
 
-	// This is only needed by Safari.
+	// This is needed by Safari, and it is a fallback in case logging out does not land the user on the login screen.
+	// This could happen due to cookies being manually deleted or expiring, or a user "switching off" in the User Switching plugin.
 	wp_register_script_module(
 		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_PAGESHOW,
 		plugins_url( 'js/bfcache-invalidation-via-pageshow.js', PLUGIN_FILE ),

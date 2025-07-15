@@ -8,6 +8,12 @@
  * page. When a new user logs in, a different session token is stored in the cookie; when a user logs out, this cookie
  * is cleared. This ensures that an authenticated page loaded for a specific user is able to be restored from bfcache.
  *
+ * This is the only bfcache invalidation method supported by Safari. It is also a fallback bfcache invalidation method
+ * for other browsers which support the Broadcast Channel method, or if the user logs out in a non-standard way: If a
+ * user logs out and does not land on the login screen, then the eviction message is not broadcast. This can happen when
+ * "switching off" in the User Switching plugin; this can also happen if the user manually deleted cookies or the cookies
+ * expired.
+ *
  * This is a JavaScript module, so the global namespace is not polluted.
  *
  * @since 1.0.0
