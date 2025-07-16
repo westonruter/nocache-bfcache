@@ -404,8 +404,12 @@ function filter_nocache_headers( $headers ): array {
 	return $headers;
 }
 
+/*
+ * WC_Cache_Helper::additional_nocache_headers() runs at priority 10, until <https://github.com/woocommerce/woocommerce/pull/58445>.
+ * Jetpack_Admin::add_no_store_header() runs at priority 100, until <https://github.com/Automattic/jetpack/pull/44322>.
+ */
 add_filter(
 	'nocache_headers',
 	__NAMESPACE__ . '\filter_nocache_headers',
-	1000 // Note that WC_Cache_Helper::additional_nocache_headers() runs at priority 10, that is, until <https://github.com/woocommerce/woocommerce/pull/58445>.
+	1000
 );
