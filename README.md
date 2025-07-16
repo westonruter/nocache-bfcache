@@ -81,7 +81,7 @@ Refer to the [Back/forward cache](https://web.dev/articles/bfcache) article on w
 
 ### How can I enable bfcache when Jetpack is active?
 
-When Jetpack is active, you may see that bfcache isn't working on any page and that the "Back/forward cache" panel of Chrome DevTools saying:
+When Jetpack is active, you may see that bfcache isn't working on any page and that the "Back/forward cache" panel of Chrome DevTools says:
 
 > Pages with WebSocket cannot enter back/forward cache.
 
@@ -89,9 +89,9 @@ Here you'll also see:
 
 > Pending Support: Chrome support for these reasons is pending i.e. they will not prevent the page from being eligible for back/forward cache in a future version of Chrome.
 
-The reason for this is likely the "[Notifications](https://jetpack.com/support/notifications/)" module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this Feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click "Modules". Here you can disable the Notifications module.
+The reason for this is likely the "[Notifications](https://jetpack.com/support/notifications/)" module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click "Modules". Here you can disable the Notifications module.
 
-Aside from this, bfcache may be disabled on Jetpack screens do to a couple the plugin is still sending `no-store`. A [pull request](https://github.com/Automattic/jetpack/pull/44322) has been opened to remove these.
+Aside from this, bfcache may be disabled on some Jetpack screens because the plugin is still sending `no-store`. A [pull request](https://github.com/Automattic/jetpack/pull/44322) has been opened to remove these.
 
 Lastly, the Akismet screen has an `iframe` which contains a page with an `unload` event listener. This event [should never be used](https://web.dev/articles/bfcache#never-use-the-unload-event) anymore; the Akismet team should replace it with a more appropriate event, as was done in core ([#55491](https://core.trac.wordpress.org/ticket/55491)).
 
