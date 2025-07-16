@@ -126,7 +126,7 @@ $readme_txt = (string) preg_replace_callback(
 
 // Replace image-linked YouTube videos with bare URLs.
 $readme_txt = (string) preg_replace(
-	'#\[!\[.+?]\(.+?\)]\((https://www\.youtube\.com/.+?)\)#',
+	'#\[!\[.+?]\(.+?\)]\((https://(?:(?:www\.)?youtube\.com|youtu\.be)/.+?)\)#',
 	'$1',
 	$readme_txt
 );
