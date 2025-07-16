@@ -73,7 +73,11 @@ Relevant core tickets that this revisits:
 
 You may also install and update via [Git Updater](https://git-updater.com/).
 
-## Frequently Asked Questions
+## FAQ
+
+### What is preventing bfcache from working?
+
+Refer to the [Back/forward cache](https://web.dev/articles/bfcache) article on web.dev for [reasons](https://web.dev/articles/bfcache#optimize) why bfcache may be blocked. See also the list of [blocking reasons](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#blocking_reasons) on MDN. See also the YouTube video on [Debugging bfcache, make your page load instantly](https://youtu.be/Y2IVv5KnrmI).
 
 ### How can I enable bfcache when Jetpack is active?
 
