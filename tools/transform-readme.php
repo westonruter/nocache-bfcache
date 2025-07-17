@@ -56,6 +56,15 @@ if ( ! is_string( $readme_md ) ) {
 
 $readme_txt = $readme_md;
 
+// Transform code blocks.
+$readme_txt = (string) preg_replace_callback(
+	'/(^|\n)```(\w+)?\n(.+?\n)```/s',
+	static function ( $matches ): string {
+		return $matches[1] . '<pre>' . trim( $matches[3] ) . '</pre>';
+	},
+	$readme_txt
+);
+
 // Transform the sections above the description.
 $readme_txt = (string) preg_replace_callback(
 	'/^.+?(?=## Description)/s',
