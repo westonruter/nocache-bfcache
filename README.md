@@ -95,6 +95,19 @@ Aside from this, bfcache may be disabled on some Jetpack screens because the plu
 
 Lastly, the Akismet screen has an `iframe` which contains a page with an `unload` event listener. This event [should never be used](https://web.dev/articles/bfcache#never-use-the-unload-event) anymore; the Akismet team should replace it with a more appropriate event, as was done in core ([#55491](https://core.trac.wordpress.org/ticket/55491)).
 
+### Why is bfcache not working on my site hosted by Pantheon?
+
+Pantheon sites have a [must-use plugin](https://github.com/pantheon-systems/pantheon-mu-plugin) which includes some [Page Cache functionality](https://github.com/pantheon-systems/pantheon-mu-plugin/blob/main/inc/pantheon-page-cache.php). When a user is logged in, it is currently sending a `Cache-Control: no-cache, no-store, must-revalidate` response header. This prevents bfcache from working. A [pull request](https://github.com/pantheon-systems/pantheon-mu-plugin/pull/94) has been opened to fix this, but in the meantime you may work around the issue by preventing this header from being sent with the following plugin code:
+
+```php
+add_filter(
+	'pantheon_skip_cache_control',
+	static function (): bool {
+		return is_admin() || is_user_logged_in();
+	}
+);
+```
+
 ## Screenshots
 
 <!-- markdownlint-disable-next-line no-trailing-punctuation -->
