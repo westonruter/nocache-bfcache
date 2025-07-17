@@ -100,6 +100,8 @@ Lastly, the Akismet screen has an `iframe` which contains a page with an `unload
 Pantheon sites have a [must-use plugin](https://github.com/pantheon-systems/pantheon-mu-plugin) which includes some [Page Cache functionality](https://github.com/pantheon-systems/pantheon-mu-plugin/blob/main/inc/pantheon-page-cache.php). When a user is logged in, it is currently sending a `Cache-Control: no-cache, no-store, must-revalidate` response header. This prevents bfcache from working. A [pull request](https://github.com/pantheon-systems/pantheon-mu-plugin/pull/94) has been opened to fix this, but in the meantime you may work around the issue by preventing this header from being sent with the following plugin code:
 
 ```php
+// Workaround for Pantheon MU plugin sending `Cache-Control: no-store` which prevents bfcache.
+// See https://github.com/pantheon-systems/pantheon-mu-plugin/pull/94
 add_filter(
 	'pantheon_skip_cache_control',
 	static function (): bool {
