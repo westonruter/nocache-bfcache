@@ -67,13 +67,21 @@ Relevant core tickets that this revisits:
 
 ## Installation
 
-1. Download the plugin [ZIP from GitHub](https://github.com/westonruter/bfcache/archive/refs/heads/main.zip) or if you have a local clone of the repo, run `npm run plugin-zip`.
+1. Visit **Plugins > Add New** in the WordPress Admin.
+2. Search for **No-cache BFCache**.
+3. Install and activate the **No-cache BFCache** plugin.
+4. Log out of WordPress and log back in with the "Remember Me" checkbox checked.
+
+You may also install and update via [Git Updater](https://git-updater.com/) using the [plugin's GitHub URL](https://github.com/westonruter/nocache-bfcache).
+
+### Manual Installation
+
+1. Download the [plugin ZIP](https://downloads.wordpress.org/plugin/nocache-bfcache.zip) from WordPress.org. (You may also download a development [ZIP from GitHub](https://github.com/westonruter/nocache-bfcache/archive/refs/heads/main.zip); alternatively, if you have a local clone of [the repo](https://github.com/westonruter/nocache-bfcache), run `npm run plugin-zip`.)
 2. Visit **Plugins > Add New Plugin** in the WordPress Admin.
 3. Click **Upload Plugin**.
 4. Select the `nocache-bfcache.zip` file on your system from step 1 and click **Install Now**.
 5. Click the **Activate Plugin** button.
-
-You may also install and update via [Git Updater](https://git-updater.com/).
+6. Log out of WordPress and log back in with the "Remember Me" checkbox checked.
 
 ## FAQ
 
