@@ -383,7 +383,7 @@ function filter_nocache_headers( $headers ): array {
 		);
 
 		// Since no-store was removed, make sure that other key directives are present which prevent the response from being stored in a proxy cache.
-		// WooCommerce's WC_Cache_Helper::additional_nocache_headers() neglects to add the `private` directive. But a fix has been proposed in
+		// WooCommerce's WC_Cache_Helper::additional_nocache_headers() neglected to add the `private` directive before v10.1, which was fixed in
 		// <https://github.com/woocommerce/woocommerce/pull/58445>.
 		$directives = array_unique(
 			array_merge(
