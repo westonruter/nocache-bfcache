@@ -7,7 +7,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when "
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
-**Stable tag:**   1.0.0  
+**Stable tag:**   1.1.0  
 **License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
@@ -153,7 +153,7 @@ add_filter(
 
 ## Changelog
 
-### Unreleased
+### 1.1.0
 
 * Add GHA workflow ([#1](https://github.com/westonruter/nocache-bfcache/pull/1))
 * Integrate with interim login (wp-auth-check) modal ([#2](https://github.com/westonruter/nocache-bfcache/pull/2))
@@ -167,6 +167,7 @@ add_filter(
 * Add FAQ for why bfcache may not work on Pantheon ([#10](https://github.com/westonruter/nocache-bfcache/pull/10))
 * Add dotorg plugin directory assets ([#11](https://github.com/westonruter/nocache-bfcache/pull/11))
 * Configure Dependabot ([#12](https://github.com/westonruter/nocache-bfcache/pull/12))
+* Add deployment workflows ([#14](https://github.com/westonruter/nocache-bfcache/pull/14))
 
 ### 1.0.0
 
