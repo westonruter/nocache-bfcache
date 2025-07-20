@@ -8,9 +8,16 @@ const config = {
 		() => 'composer validate --strict',
 		() => 'composer normalize --dry-run',
 	],
-	'*.php': [ 'composer phpcs', () => 'composer phpstan' ],
-	'*.md': [ 'npm run lint:md' ],
-	'README.md': [ 'npm run transform-readme' ],
+	'*.php': [
+		'composer phpcs',
+		() => 'composer phpstan',
+		() => 'npm run verify-version-consistency',
+	],
+	'*.md': [ 'npm run lint:md', 'npm run verify-version-consistency' ],
+	'README.md': [
+		() => 'npm run verify-version-consistency',
+		() => 'npm run transform-readme',
+	],
 };
 
 module.exports = config;
