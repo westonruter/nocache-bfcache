@@ -25,7 +25,7 @@ jobs:
                   cache: 'npm' # Automatically caches npm dependencies
 
             - name: Prepare dist
-              run: npm run plugin-zip && unzip nocache-bfcache.zip -d dist
+              run: npm run plugin-zip && unzip *.zip -d dist
 
             - name: WordPress plugin deploy
               uses: 10up/action-wordpress-plugin-deploy@stable
@@ -35,11 +35,10 @@ jobs:
               env:
                   SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
                   SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
-                  SLUG: nocache-bfcache
                   BUILD_DIR: dist
 
             - name: Upload release asset
               if: github.event_name == 'release'
-              run: gh release upload ${{ github.event.release.tag_name }} nocache-bfcache.zip
+              run: gh release upload ${{ github.event.release.tag_name }} *.zip
               env:
                   GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
