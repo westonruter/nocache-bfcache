@@ -153,6 +153,21 @@ add_filter(
 
 ## Changelog
 
+### Unreleased
+
+* Add GHA workflow ([#1](https://github.com/westonruter/nocache-bfcache/pull/1))
+* Integrate with interim login (wp-auth-check) modal ([#2](https://github.com/westonruter/nocache-bfcache/pull/2))
+* Log out warning when page navigation is not restored from bfcache when `WP_DEBUG` is enabled ([#3](https://github.com/westonruter/nocache-bfcache/pull/3))
+* Retain CCNS when the user has JavaScript disabled ([#4](https://github.com/westonruter/nocache-bfcache/pull/4))
+* Improve bfcache invalidation via BroadcastChannel, store token in user session, promote feature on login ([#5](https://github.com/westonruter/nocache-bfcache/pull/5))
+* Prepare for dotorg directory release ([#6](https://github.com/westonruter/nocache-bfcache/pull/6))
+* Fix compatibility with the Two-Factor plugin and any plugins with interstitial login screens ([#7](https://github.com/westonruter/nocache-bfcache/pull/7))
+* Fix bfcache invalidation via Broadcast Channel ([#8](https://github.com/westonruter/nocache-bfcache/pull/8))
+* Improve docs with info about Jetpack and add FAQ ([#9](https://github.com/westonruter/nocache-bfcache/pull/9))
+* Add FAQ for why bfcache may not work on Pantheon ([#10](https://github.com/westonruter/nocache-bfcache/pull/10))
+* Add dotorg plugin directory assets ([#11](https://github.com/westonruter/nocache-bfcache/pull/11))
+* Configure Dependabot ([#12](https://github.com/westonruter/nocache-bfcache/pull/12))
+
 ### 1.0.0
 
 * Initial release.
