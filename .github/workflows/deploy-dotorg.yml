@@ -70,4 +70,4 @@ jobs:
               if: github.event_name == 'release'
               run: gh release upload ${{ github.event.release.tag_name }} *.zip
               env:
-                  GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
