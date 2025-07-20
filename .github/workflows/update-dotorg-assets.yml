@@ -48,6 +48,9 @@ jobs:
             - name: Install npm dependencies
               run: npm ci
 
+            - name: Verify version consistency
+              run: npm run verify-version-consistency
+
             - name: Transform README.md to readme.txt
               run: npm run transform-readme
 
