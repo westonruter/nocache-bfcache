@@ -22,6 +22,7 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run transform-readme && git archive --format=zip --output=nocache-bfcache.zip --add-file readme.txt HEAD && zip nocache-bfcache.zip -d README.md",
 		"prepare": "husky",
-		"transform-readme": "php tools/transform-readme.php"
+		"transform-readme": "php tools/transform-readme.php",
+		"verify-version-consistency": "php tools/verify-version-consistency.php"
 	}
 }

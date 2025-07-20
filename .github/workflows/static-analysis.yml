@@ -105,5 +105,8 @@ jobs:
             - name: Check Markdown format
               run: npm run lint:md
 
+            - name: Verify version consistency
+              run: npm run verify-version-consistency
+
             - name: Check README.md format
               run: npm run transform-readme
