@@ -18,11 +18,37 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
 
+            - name: Read PHP version
+              id: php-version
+              run: echo "version=$(jq -r .config.platform.php composer.json)" >> $GITHUB_OUTPUT
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ steps.php-version.outputs.version }}
+                  extensions: mbstring, dom, fileinfo, xml, curl
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Cache Composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-
+
+            - name: Install Composer dependencies
+              run: composer install --prefer-dist --no-progress
+
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version-file: '.nvmrc'
-                  cache: 'npm' # Automatically caches npm dependencies
+                  cache: 'npm'
+
+            - name: Install npm dependencies
+              run: npm ci
 
             - name: Prepare dist
               run: npm run plugin-zip && unzip *.zip -d dist
