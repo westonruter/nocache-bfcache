@@ -37,13 +37,25 @@ In any case, to address this privacy concern, two safeguards are in place to pro
 
 Since JavaScript is required to invalidate bfcache, the login form is extended to pass along whether scripting is enabled. Only when JS is enabled will the `no-store` directive be omitted from the `Cache-Control` response header. This ensures that users with JavaScript turned off will retain the privacy protection after logging out.
 
-### Before: Navigating the WordPress Admin without Back/forward Cache (bfcache)
+### Demo: Navigating the WordPress Admin
+
+Without bfcache:
 
 [![Navigating the WordPress Admin without Back/forward Cache (bfcache)](https://img.youtube.com/vi/Cz-_L6q9ZRc/maxresdefault.jpg)](https://youtu.be/Cz-_L6q9ZRc?t=22)
 
-### After: Navigating the WordPress Admin with Back/forward Cache (bfcache)
+With bfcache:
 
 [![Navigating the WordPress Admin with Back/forward Cache (bfcache)](https://img.youtube.com/vi/z4dILiwe0Rk/maxresdefault.jpg)](https://youtu.be/z4dILiwe0Rk?t=27)
+
+### Demo: Navigating the WordPress Admin:
+
+**Without bfcache:** The drafted BuddyPress activity update is lost when navigating away from the page before submitting. The activity feed and Tweet have to be reconstructed with each back/forward navigation.
+
+[![Navigating the WordPress Frontend without Back/forward Cache (bfcache)](https://img.youtube.com/vi/Ko1w_SRlCig/maxresdefault.jpg)](https://youtu.be/Ko1w_SRlCig)
+
+**With bfcache:** The drafted BuddyPress activity update is preserved when navigating away from the page without submitting. The activity feed and Tweet do not have to be reconstructed when navigating to previously-visited pages via the back/forward buttons.
+
+[![Navigating the WordPress Admin with Back/forward Cache (bfcache)](https://img.youtube.com/vi/bzGm6LcHHAs/maxresdefault.jpg)](https://youtu.be/bzGm6LcHHAs)
 
 ## Installation
 
@@ -107,11 +119,11 @@ The [Performance Lab](https://wordpress.org/plugins/performance-lab/) plugin als
 
 When Jetpack is active, you may see that bfcache isn't working on any page and that the "Back/forward cache" panel of Chrome DevTools says:
 
-> Pages with WebSocket cannot enter back/forward cache.
+_Pages with WebSocket cannot enter back/forward cache._
 
 Here you'll also see:
 
-> Pending Support: Chrome support for these reasons is pending i.e. they will not prevent the page from being eligible for back/forward cache in a future version of Chrome.
+_Pending Support: Chrome support for these reasons is pending i.e. they will not prevent the page from being eligible for back/forward cache in a future version of Chrome._
 
 The reason for this is likely the "[Notifications](https://jetpack.com/support/notifications/)" module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click "Modules". Here you can disable the Notifications module.
 
@@ -136,17 +148,14 @@ add_filter(
 
 ## Screenshots
 
-<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### The “Remember Me” checkbox now has a ✨ button which opens a popover.
 
 ![WordPress login screen](.wordpress-org/screenshot-1.png)
 
-<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### The popover describes the benefits of clicking the “Remember Me” checkbox.
 
 ![Popover on login screen](.wordpress-org/screenshot-2.png)
 
-<!-- markdownlint-disable-next-line no-trailing-punctuation -->
 ### Pages are served from bfcache where previously they would fail to do so with an issue like `MainResourceHasCacheControlNoStore` showing up in the “Back/forward cache” panel of the Application tab in Chrome DevTools.
 
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
