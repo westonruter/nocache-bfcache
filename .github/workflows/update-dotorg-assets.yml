@@ -1,12 +1,13 @@
 name: Update assets on WordPress.org
 
 on:
-    push:
-        branches:
-            - main
-        paths:
-            - 'README.md'
-            - '.wordpress.org/**'
+    workflow_dispatch:
+#    push:
+#        branches:
+#            - main
+#        paths:
+#            - 'README.md'
+#            - '.wordpress.org/**'
 
 jobs:
     update:
