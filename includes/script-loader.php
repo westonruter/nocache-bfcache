@@ -71,12 +71,17 @@ add_action( 'init', __NAMESPACE__ . '\register_script_modules' );
  * @access private
  */
 function register_styles(): void {
-
+	$relative_path = 'css/bfcache-opt-in.css';
 	wp_register_style(
 		BFCACHE_OPT_IN_STYLE_HANDLE,
-		plugins_url( 'css/bfcache-opt-in.css', PLUGIN_FILE ),
+		plugins_url( $relative_path, PLUGIN_FILE ),
 		array(),
 		VERSION
+	);
+	wp_style_add_data(
+		BFCACHE_OPT_IN_STYLE_HANDLE,
+		'path',
+		plugin_dir_path( PLUGIN_FILE ) . $relative_path
 	);
 }
 
