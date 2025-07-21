@@ -47,7 +47,7 @@ With bfcache:
 
 [![Navigating the WordPress Admin with Back/forward Cache (bfcache)](https://img.youtube.com/vi/z4dILiwe0Rk/maxresdefault.jpg)](https://youtu.be/z4dILiwe0Rk?t=27)
 
-### Demo: Navigating the WordPress Admin:
+### Demo: Navigating the WordPress Frontend
 
 **Without bfcache:** The drafted BuddyPress activity update is lost when navigating away from the page before submitting. The activity feed and Tweet have to be reconstructed with each back/forward navigation.
 
