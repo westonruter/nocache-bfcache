@@ -26,6 +26,7 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
  *     cookieName: string,
  *     cookiePath: string,
  *     siteCookiePath: string,
+ *     loginPostUrl: string,
  * }}
  */
 const data = JSON.parse( jsonScript.text );
@@ -41,8 +42,12 @@ const data = JSON.parse( jsonScript.text );
 function setCookieOnLoginFormSubmit( event ) {
 	const form = /** @type {HTMLFormElement} */ ( event.target );
 	const action = new URL( form.action, window.location.href );
+	const loginPostUrl = new URL( data.loginPostUrl, window.location.href );
 
-	if ( action.pathname.endsWith( '/wp-login.php' ) ) {
+	if (
+		action.origin === loginPostUrl.origin &&
+		action.pathname === loginPostUrl.pathname
+	) {
 		document.cookie = `${ data.cookieName }=1; path=${ data.cookiePath }`;
 		if ( data.cookiePath !== data.siteCookiePath ) {
 			document.cookie = `${ data.cookieName }=1; path=${ data.siteCookiePath }`;
