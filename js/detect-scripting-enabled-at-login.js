@@ -41,7 +41,7 @@ const data = JSON.parse( jsonScript.text );
  */
 function setCookieOnLoginFormSubmit( event ) {
 	const form = /** @type {HTMLFormElement} */ ( event.target );
-	const action = new URL( form.action, window.location.href );
+	const action = new URL( event.submitter?.formAction || form.action, window.location.href );
 	const loginPostUrl = new URL( data.loginPostUrl, window.location.href );
 
 	if (
