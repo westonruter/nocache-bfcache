@@ -19,7 +19,7 @@
  * @since 1.0.0
  */
 
-const moduleId = '@nocache-bfcache/bfcache-invalidation-via-pageshow';
+const moduleId = '@nocache-bfcache/bfcache-invalidation';
 
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById( `wp-script-module-data-${ moduleId }` )
