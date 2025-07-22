@@ -46,11 +46,6 @@ const VERSION = '1.1.0';
 const PLUGIN_FILE = __FILE__;
 
 /**
- * Interface containing constants for script module IDs.
- */
-require_once __DIR__ . '/includes/interface-script-module-ids.php';
-
-/**
  * Script and style registration.
  */
 require_once __DIR__ . '/includes/script-loader.php';
