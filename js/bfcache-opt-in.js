@@ -31,10 +31,25 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
  */
 const data = JSON.parse( jsonScript.text );
 
-document.cookie = `${ data.cookieName }=1; path=${ data.cookiePath }`;
-if ( data.cookiePath !== data.siteCookiePath ) {
-	document.cookie = `${ data.cookieName }=1; path=${ data.siteCookiePath }`;
+/**
+ * Sets a cookie to indicate JavaScript is enabled  when the login form is submitted.
+ *
+ * Note that a hidden input field is not used because plugins like Two Factor may introduce interstitial login screens
+ * which drop hidden fields when redirecting to a final authenticated state.
+ *
+ * @param {SubmitEvent} event - Submit event.
+ */
+function setCookieOnLoginFormSubmit( event ) {
+	const form = /** @type {HTMLFormElement} */ ( event.target );
+	if ( form.id === 'loginform' ) {
+		document.cookie = `${ data.cookieName }=1; path=${ data.cookiePath }`;
+		if ( data.cookiePath !== data.siteCookiePath ) {
+			document.cookie = `${ data.cookieName }=1; path=${ data.siteCookiePath }`;
+		}
+	}
 }
+
+document.addEventListener( 'submit', setCookieOnLoginFormSubmit );
 
 // Add a button that opens a popover with information about the instant navigation feature.
 const p = document.querySelector(
