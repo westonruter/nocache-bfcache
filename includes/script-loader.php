@@ -24,6 +24,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
 
 /**
+ * Script module ID for the bfcache opt-in.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-opt-in';
+
+/**
+ * Script module ID for bfcache invalidation.
+ *
+ * @since 1.1.0
+ * @access private
+ * @var string
+ */
+const BFCACHE_INVALIDATION_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-invalidation';
+
+/**
  * Registers script modules.
  *
  * @since 1.1.0
@@ -32,31 +50,15 @@ const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
 function register_script_modules(): void {
 
 	wp_register_script_module(
-		Script_Module_Ids::BFCACHE_OPT_IN,
+		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
 		plugins_url( 'js/bfcache-opt-in.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
 
-	// This is used by Chrome, Edge, and Firefox.
 	wp_register_script_module(
-		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_EMITTER,
-		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel-emitter.js', PLUGIN_FILE ),
-		array(),
-		VERSION
-	);
-	wp_register_script_module(
-		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_BROADCAST_CHANNEL_LISTENER,
-		plugins_url( 'js/bfcache-invalidation-via-broadcast-channel-listener.js', PLUGIN_FILE ),
-		array(),
-		VERSION
-	);
-
-	// This is needed by Safari, and it is a fallback in case logging out does not land the user on the login screen.
-	// This could happen due to cookies being manually deleted or expiring, or a user "switching off" in the User Switching plugin.
-	wp_register_script_module(
-		Script_Module_Ids::BFCACHE_INVALIDATION_VIA_PAGESHOW,
-		plugins_url( 'js/bfcache-invalidation-via-pageshow.js', PLUGIN_FILE ),
+		BFCACHE_INVALIDATION_SCRIPT_MODULE_ID,
+		plugins_url( 'js/bfcache-invalidation.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
