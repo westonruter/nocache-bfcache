@@ -78,6 +78,7 @@ function enqueue_detect_scripting_enabled_at_login_script_module(): void {
 			'cookieName'     => JAVASCRIPT_ENABLED_COOKIE_NAME,
 			'cookiePath'     => COOKIEPATH,
 			'siteCookiePath' => SITECOOKIEPATH,
+			'loginPostUrl'   => site_url( 'wp-login.php', 'login_post' ),
 		)
 	);
 }
