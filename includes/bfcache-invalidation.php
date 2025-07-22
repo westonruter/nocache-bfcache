@@ -53,4 +53,4 @@ function send_clear_site_data_upon_logout(): void {
 		header( 'Clear-Site-Data: "cache"' );
 	}
 }
-add_action( 'wp_logout', __NAMESPACE__ . '\send_clear_site_data_upon_logout' ); // TODO: Would the clear_auth_cookie action be better?
+add_action( 'clear_auth_cookie', __NAMESPACE__ . '\send_clear_site_data_upon_logout' );
