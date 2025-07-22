@@ -10,7 +10,7 @@
  *
  * This is a JavaScript module, so the global namespace is not polluted.
  *
- * @since 1.1.0
+ * @since 1.2.0
  */
 
 const moduleId = '@nocache-bfcache/detect-scripting-enabled-at-login';
