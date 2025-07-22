@@ -1,12 +1,6 @@
 /**
- * Opts in to bfcache from the login screen when a user elects to "Remember Me" (and when JavaScript is enabled).
- *
- * This sets a cookie which demonstrates that JavaScript is currently enabled. This cookie only needs to live until
- * the 'attach_session_information' filter in PHP runs upon successful login, hence why no expiration is set, so that
- * the cookie will be removed when the browser session ends. Only when JavaScript is enabled (and the user has checked
- * "Remember Me") will the bfcache session token cookie be set, and only when this cookie is set will the `no-store`
- * directive be removed from the `Cache-Control` response header. This is important because the pages in bfcache can
- * only be invalidated (when a user logs out) when JavaScript is enabled.
+ * Adds a sparkle (✨) button after the "Remember Me" checkbox on the login screen to open a popover with information
+ * about the bfcache opt-in.
  *
  * This is a JavaScript module, so the global namespace is not polluted.
  *
@@ -23,33 +17,10 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
  * Exports from PHP.
  *
  * @type {{
- *     cookieName: string,
- *     cookiePath: string,
- *     siteCookiePath: string,
  *     buttonTemplateId: string,
  * }}
  */
 const data = JSON.parse( jsonScript.text );
-
-/**
- * Sets a cookie to indicate JavaScript is enabled  when the login form is submitted.
- *
- * Note that a hidden input field is not used because plugins like Two Factor may introduce interstitial login screens
- * which drop hidden fields when redirecting to a final authenticated state.
- *
- * @param {SubmitEvent} event - Submit event.
- */
-function setCookieOnLoginFormSubmit( event ) {
-	const form = /** @type {HTMLFormElement} */ ( event.target );
-	if ( form.id === 'loginform' ) {
-		document.cookie = `${ data.cookieName }=1; path=${ data.cookiePath }`;
-		if ( data.cookiePath !== data.siteCookiePath ) {
-			document.cookie = `${ data.cookieName }=1; path=${ data.siteCookiePath }`;
-		}
-	}
-}
-
-document.addEventListener( 'submit', setCookieOnLoginFormSubmit );
 
 // Add a button that opens a popover with information about the instant navigation feature.
 const p = document.querySelector(

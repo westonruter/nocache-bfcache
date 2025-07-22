@@ -53,16 +53,23 @@ const BFCACHE_SESSION_TOKEN_USER_SESSION_KEY = 'bfcache_session_token';
  * @access private
  */
 function enqueue_bfcache_opt_in_script_module_and_style(): void {
-	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
 	wp_enqueue_style( BFCACHE_OPT_IN_STYLE_HANDLE );
 
+	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
 	export_script_module_data(
 		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
 		array(
-			'cookieName'       => JAVASCRIPT_ENABLED_COOKIE_NAME,
 			'buttonTemplateId' => BUTTON_TEMPLATE_ID,
-			'cookiePath'       => COOKIEPATH,
-			'siteCookiePath'   => SITECOOKIEPATH,
+		)
+	);
+
+	wp_enqueue_script_module( DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID );
+	export_script_module_data(
+		DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+		array(
+			'cookieName'     => JAVASCRIPT_ENABLED_COOKIE_NAME,
+			'cookiePath'     => COOKIEPATH,
+			'siteCookiePath' => SITECOOKIEPATH,
 		)
 	);
 }

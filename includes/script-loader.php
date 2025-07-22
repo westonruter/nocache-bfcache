@@ -33,6 +33,15 @@ const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
 const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-opt-in';
 
 /**
+ * Script module ID for the script to detect whether scripting is enabled at login.
+ *
+ * @since 1.2.0
+ * @access private
+ * @var string
+ */
+const DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID = '@nocache-bfcache/detect-scripting-enabled-at-login';
+
+/**
  * Script module ID for bfcache invalidation.
  *
  * @since 1.1.0
@@ -52,6 +61,13 @@ function register_script_modules(): void {
 	wp_register_script_module(
 		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
 		plugins_url( 'js/bfcache-opt-in.js', PLUGIN_FILE ),
+		array(),
+		VERSION
+	);
+
+	wp_register_script_module(
+		DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+		plugins_url( 'js/detect-scripting-enabled-at-login.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
