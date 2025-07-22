@@ -127,6 +127,51 @@ function export_script_module_data( string $module_id, array $module_data ): voi
 }
 
 /**
+ * Adds fetchpriority to SCRIPT tags for script modules.
+ *
+ * @since 1.2.0
+ * @access private
+ *
+ * @link https://core.trac.wordpress.org/ticket/63486
+ * @link https://weston.ruter.net/2025/05/26/improve-lcp-by-deprioritizing-interactivity-api-script-modules/
+ *
+ * @param array<string, string>|mixed $attributes Script attributes.
+ * @return array<string, string> Modified attributes.
+ */
+function filter_script_tag_attributes( $attributes ): array {
+	if ( ! is_array( $attributes ) ) {
+		$attributes = array();
+	}
+	/**
+	 * Because plugins do bad things.
+	 *
+	 * @var array<string, string> $attributes
+	 */
+
+	if (
+		isset( $attributes['id'], $attributes['src'], $attributes['type'] ) &&
+		'module' === $attributes['type'] &&
+		is_string( $attributes['id'] ) &&
+		1 === preg_match( '/^(?P<script_module_id>.+)-js-module$/', $attributes['id'], $matches ) &&
+		in_array(
+			$matches['script_module_id'],
+			array(
+				BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
+				DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+				BFCACHE_INVALIDATION_SCRIPT_MODULE_ID,
+			),
+			true
+		)
+	) {
+		$attributes['fetchpriority'] = 'low';
+	}
+
+	return $attributes;
+}
+
+add_filter( 'wp_script_attributes', __NAMESPACE__ . '\filter_script_tag_attributes' );
+
+/**
  * Adds missing hooks to print script modules in the Customizer and login screen if they are enqueued.
  *
  * @since 1.1.0
