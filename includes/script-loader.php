@@ -33,6 +33,15 @@ const BFCACHE_OPT_IN_STYLE_HANDLE = 'nocache-bfcache-opt-in';
 const BFCACHE_OPT_IN_SCRIPT_MODULE_ID = '@nocache-bfcache/bfcache-opt-in';
 
 /**
+ * Script module ID for the script to detect whether scripting is enabled at login.
+ *
+ * @since 1.2.0
+ * @access private
+ * @var string
+ */
+const DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID = '@nocache-bfcache/detect-scripting-enabled-at-login';
+
+/**
  * Script module ID for bfcache invalidation.
  *
  * @since 1.1.0
@@ -52,6 +61,13 @@ function register_script_modules(): void {
 	wp_register_script_module(
 		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
 		plugins_url( 'js/bfcache-opt-in.js', PLUGIN_FILE ),
+		array(),
+		VERSION
+	);
+
+	wp_register_script_module(
+		DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+		plugins_url( 'js/detect-scripting-enabled-at-login.js', PLUGIN_FILE ),
 		array(),
 		VERSION
 	);
@@ -109,6 +125,51 @@ function export_script_module_data( string $module_id, array $module_data ): voi
 		}
 	);
 }
+
+/**
+ * Adds fetchpriority to SCRIPT tags for script modules.
+ *
+ * @since 1.2.0
+ * @access private
+ *
+ * @link https://core.trac.wordpress.org/ticket/63486
+ * @link https://weston.ruter.net/2025/05/26/improve-lcp-by-deprioritizing-interactivity-api-script-modules/
+ *
+ * @param array<string, string>|mixed $attributes Script attributes.
+ * @return array<string, string> Modified attributes.
+ */
+function filter_script_tag_attributes( $attributes ): array {
+	if ( ! is_array( $attributes ) ) {
+		$attributes = array();
+	}
+	/**
+	 * Because plugins do bad things.
+	 *
+	 * @var array<string, string> $attributes
+	 */
+
+	if (
+		isset( $attributes['id'], $attributes['src'], $attributes['type'] ) &&
+		'module' === $attributes['type'] &&
+		is_string( $attributes['id'] ) &&
+		1 === preg_match( '/^(?P<script_module_id>.+)-js-module$/', $attributes['id'], $matches ) &&
+		in_array(
+			$matches['script_module_id'],
+			array(
+				BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
+				DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+				BFCACHE_INVALIDATION_SCRIPT_MODULE_ID,
+			),
+			true
+		)
+	) {
+		$attributes['fetchpriority'] = 'low';
+	}
+
+	return $attributes;
+}
+
+add_filter( 'wp_script_attributes', __NAMESPACE__ . '\filter_script_tag_attributes' );
 
 /**
  * Adds missing hooks to print script modules in the Customizer and login screen if they are enqueued.

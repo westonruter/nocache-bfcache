@@ -53,20 +53,64 @@ const BFCACHE_SESSION_TOKEN_USER_SESSION_KEY = 'bfcache_session_token';
  * @access private
  */
 function enqueue_bfcache_opt_in_script_module_and_style(): void {
-	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
 	wp_enqueue_style( BFCACHE_OPT_IN_STYLE_HANDLE );
 
+	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
 	export_script_module_data(
 		BFCACHE_OPT_IN_SCRIPT_MODULE_ID,
 		array(
-			'cookieName'       => JAVASCRIPT_ENABLED_COOKIE_NAME,
 			'buttonTemplateId' => BUTTON_TEMPLATE_ID,
-			'cookiePath'       => COOKIEPATH,
-			'siteCookiePath'   => SITECOOKIEPATH,
 		)
 	);
 }
+
+/**
+ * Enqueues script module to detect whether scripting is enabled at login.
+ *
+ * @since 1.2.0
+ * @access private
+ */
+function enqueue_detect_scripting_enabled_at_login_script_module(): void {
+	wp_enqueue_script_module( DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID );
+	export_script_module_data(
+		DETECT_SCRIPTING_ENABLED_AT_LOGIN_SCRIPT_MODULE_ID,
+		array(
+			'cookieName'     => JAVASCRIPT_ENABLED_COOKIE_NAME,
+			'cookiePath'     => COOKIEPATH,
+			'siteCookiePath' => SITECOOKIEPATH,
+		)
+	);
+}
+
 add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_bfcache_opt_in_script_module_and_style' );
+add_action( 'login_enqueue_scripts', __NAMESPACE__ . '\enqueue_detect_scripting_enabled_at_login_script_module' );
+
+/**
+ * Enqueues script modules for the login form which is rendered on the frontend.
+ *
+ * There are two login forms in WordPress:
+ *
+ * 1. The form constructed on wp-login.php
+ * 2. The form constructed by {@see wp_login_form()} for use on the frontend.
+ *
+ * For the former, scripts can be enqueued at the `login_enqueue_scripts` and the form can be extended with the
+ * `login_form` action. However, for the latter, there are no such actions. The only hooks provided by `wp_login_form()`
+ * are a set of filters that are applied. Therefore, in order to enqueue script modules when the login form is used on
+ * the frontend, one of these filters has to be hackily used as an action, with the filtered value passed through.
+ *
+ * @since 1.2.0
+ * @access private
+ *
+ * @param mixed $pass_through Pass through filter data.
+ * @return mixed Passed through filter data.
+ */
+function enqueue_script_modules_for_frontend_login_form( $pass_through ) { // phpcs:ignore SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint
+	enqueue_detect_scripting_enabled_at_login_script_module();
+	return $pass_through;
+}
+
+// A filter is used because there is no action in wp_login_form().
+add_filter( 'login_form_defaults', __NAMESPACE__ . '\enqueue_script_modules_for_frontend_login_form' );
 
 /**
  * Augments the login form with a popover to promote the feature.
