@@ -39,11 +39,23 @@ const data = JSON.parse( jsonScript.text );
  */
 function getFormActionFromSubmitEvent( event ) {
 	if (
-		event.submitter &&
-		( event.submitter instanceof HTMLInputElement ||
-			event.submitter instanceof HTMLButtonElement )
+		event.submitter instanceof HTMLInputElement ||
+		event.submitter instanceof HTMLButtonElement
 	) {
-		return event.submitter.formAction;
+		/*
+		 * > The formAction IDL attribute must reflect the formaction content attribute, except that on getting, when
+		 * > the content attribute is missing or its value is the empty string, the element's node document's URL must
+		 * > be returned instead.
+		 *
+		 * See https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#dom-fs-formaction
+		 */
+		const contentAttribute = event.submitter.getAttribute( 'formaction' );
+		if (
+			typeof contentAttribute === 'string' &&
+			contentAttribute.trim() !== ''
+		) {
+			return event.submitter.formAction;
+		}
 	}
 	const form = /** @type {HTMLFormElement} */ ( event.target );
 	return form.action;
