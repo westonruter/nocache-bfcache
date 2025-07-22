@@ -34,13 +34,15 @@ const data = JSON.parse( jsonScript.text );
  * Sets a cookie to indicate JavaScript is enabled  when the login form is submitted.
  *
  * Note that a hidden input field is not used because plugins like Two Factor may introduce interstitial login screens
- * which drop hidden fields when redirecting to a final authenticated state.
+ * which drop hidden fields when redirecting to a final authenticated state. See {@link https://github.com/WordPress/two-factor/issues/705}.
  *
  * @param {SubmitEvent} event - Submit event.
  */
 function setCookieOnLoginFormSubmit( event ) {
 	const form = /** @type {HTMLFormElement} */ ( event.target );
-	if ( form.id === 'loginform' ) {
+	const action = new URL( form.action, window.location.href );
+
+	if ( action.pathname.endsWith( '/wp-login.php' ) ) {
 		document.cookie = `${ data.cookieName }=1; path=${ data.cookiePath }`;
 		if ( data.cookiePath !== data.siteCookiePath ) {
 			document.cookie = `${ data.cookieName }=1; path=${ data.siteCookiePath }`;
