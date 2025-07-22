@@ -39,8 +39,9 @@ const data = JSON.parse( jsonScript.text );
  */
 function getFormActionFromSubmitEvent( event ) {
 	if (
-		event.submitter instanceof HTMLInputElement &&
-		event.submitter.formAction
+		event.submitter &&
+		( event.submitter instanceof HTMLInputElement ||
+			event.submitter instanceof HTMLButtonElement )
 	) {
 		return event.submitter.formAction;
 	}
