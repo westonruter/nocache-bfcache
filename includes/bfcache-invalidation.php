@@ -49,6 +49,8 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  * @access private
  */
 function send_clear_site_data_upon_logout(): void {
-	header( 'Clear-Site-Data: "cache"' );
+	if ( ! headers_sent() ) {
+		header( 'Clear-Site-Data: "cache"' );
+	}
 }
 add_action( 'wp_logout', __NAMESPACE__ . '\send_clear_site_data_upon_logout' ); // TODO: Would the clear_auth_cookie action be better?
