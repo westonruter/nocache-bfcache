@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Enqueues script modules to invalidate bfcache.
+ * Enqueues script modules to invalidate bfcache when a user is authenticated.
  *
  * These script modules are only enqueued when the user is logged in and had opted in to bfcache via electing to
  * "Remember Me" and having JavaScript enabled.
