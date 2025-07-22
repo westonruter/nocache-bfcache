@@ -32,6 +32,23 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 const data = JSON.parse( jsonScript.text );
 
 /**
+ * Gets the form action from the `submit` event.
+ *
+ * @param {SubmitEvent} event - Submit event.
+ * @return {string} Action.
+ */
+function getFormActionFromSubmitEvent( event ) {
+	if (
+		event.submitter instanceof HTMLInputElement &&
+		event.submitter.formAction
+	) {
+		return event.submitter.formAction;
+	}
+	const form = /** @type {HTMLFormElement} */ ( event.target );
+	return form.action;
+}
+
+/**
  * Sets a cookie to indicate JavaScript is enabled  when the login form is submitted.
  *
  * Note that a hidden input field is not used because plugins like Two Factor may introduce interstitial login screens
@@ -40,8 +57,10 @@ const data = JSON.parse( jsonScript.text );
  * @param {SubmitEvent} event - Submit event.
  */
 function setCookieOnLoginFormSubmit( event ) {
-	const form = /** @type {HTMLFormElement} */ ( event.target );
-	const action = new URL( event.submitter?.formAction || form.action, window.location.href );
+	const action = new URL(
+		getFormActionFromSubmitEvent( event ),
+		window.location.href
+	);
 	const loginPostUrl = new URL( data.loginPostUrl, window.location.href );
 
 	if (
