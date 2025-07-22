@@ -45,6 +45,9 @@ foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_contr
  *
  * This only works in Chrome, and it only works in a secure context (HTTPS).
  *
+ * @todo Only send this if the user had opted in to bfcache.
+ * @todo This can cause logging out to respond very slowly (e.g. 24 seconds). See <https://issues.chromium.org/issues/40233601>.
+ *
  * @since n.e.x.t
  * @access private
  */
