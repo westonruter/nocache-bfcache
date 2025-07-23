@@ -114,6 +114,9 @@ function invalidateCache() {
 		return;
 	}
 
+	// Make the body invisible immediately.
+	document.body.style.opacity = '0.0';
+
 	// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
 	document.documentElement.innerHTML = '';
 
