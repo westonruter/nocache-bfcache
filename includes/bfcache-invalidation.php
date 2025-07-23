@@ -31,9 +31,10 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	export_script_module_data(
 		BFCACHE_INVALIDATION_SCRIPT_MODULE_ID,
 		array(
-			'cookieName'          => get_bfcache_session_token_cookie_name(),
-			'initialSessionToken' => $session_token, // Send the session token in the HTML response so it is available in the HTTP cache.
-			'debug'               => WP_DEBUG,
+			'cookieName'                  => get_bfcache_session_token_cookie_name(),
+			'initialSessionToken'         => $session_token, // Send the session token in the HTML response so it is available in the HTTP cache.
+			'pageInvalidatedDebugMessage' => WP_DEBUG ? '[No-cache BFCache] ' . __( 'Cached page is stale. Reloading...', 'nocache-bfcache' ) : '',
+			'debug'                       => WP_DEBUG,
 		)
 	);
 }

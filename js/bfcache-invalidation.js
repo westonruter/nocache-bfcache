@@ -33,6 +33,7 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  * @type {{
  *     cookieName: string,
  *     initialSessionToken: string,
+ *     pageInvalidatedDebugMessage: string,
  *     debug: boolean,
  * }}
  */
@@ -68,8 +69,21 @@ function invalidateCache() {
 	}
 
 	// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
-	document.body.innerHTML = '';
-	window.location.reload();
+	document.documentElement.innerHTML = '';
+
+	const reload = () => {
+		window.location.reload();
+	};
+
+	// Reload the page to get a copy with the current session token.
+	if ( data.debug ) {
+		const p = document.createElement( 'p' );
+		p.textContent = data.pageInvalidatedDebugMessage;
+		document.body.append( p );
+		setTimeout( reload, 3000 );
+	} else {
+		reload();
+	}
 }
 
 /**
