@@ -1,18 +1,14 @@
 /**
- * Invalidates bfcache via the pageshow event.
+ * Invalidates pages stored in bfcache and the HTTP cache when the session token changes.
  *
  * When a user authenticates, a session token is set on a cookie which can be read by JavaScript. Thereafter, when an
- * authenticated page is loaded, the value of the cookie is captured in a local variable. When a user navigates back to
- * an authenticated page via bfcache (detected via the `pageshow` event handler with `persisted` property set to true),
- * if the current cookie's value does not match the previously captured value, then JavaScript forcibly reloads the
- * page. When a new user logs in, a different session token is stored in the cookie; when a user logs out, this cookie
- * is cleared. This ensures that an authenticated page loaded for a specific user is able to be restored from bfcache.
- *
- * This is the only bfcache invalidation method supported by Safari. It is also a fallback bfcache invalidation method
- * for other browsers which support the Broadcast Channel method, or if the user logs out in a non-standard way: If a
- * user logs out and does not land on the login screen, then the eviction message is not broadcast. This can happen when
- * "switching off" in the User Switching plugin; this can also happen if the user manually deleted cookies or the cookies
- * expired.
+ * authenticated page is loaded, the HTML is served with this session token in a JSON script. When a user navigates back
+ * to an authenticated page via bfcache (detected via the `pageshow` event handler with `persisted` property set to
+ * true), if the current cookie's value does not match the previously captured value, then JavaScript forcibly reloads
+ * the page. This also happens when the page is restored from the HTTP cache, when the cookie's value is compared with
+ * the value of the session token in the HTML. When a new user logs in, a different session token is stored in the
+ * cookie; when a user logs out, this cookie is cleared. This ensures that an authenticated page loaded for a specific
+ * user is able to be restored from bfcache.
  *
  * This is a JavaScript module, so the global namespace is not polluted.
  *
@@ -33,11 +29,36 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  * @type {{
  *     cookieName: string,
  *     initialSessionToken: string,
- *     pageInvalidatedDebugMessage: string,
+ *     invalidatedPageReloadedQueryParam: string,
  *     debug: boolean,
+ *     i18n: {
+ *         logPrefix: string,
+ *         pageInvalidating: string,
+ *         pageInvalidated: string,
+ *         pageRestored: string,
+ *         notRestoredReasons: string,
+ *     }
  * }}
  */
 const data = JSON.parse( jsonScript.text );
+
+/**
+ * Logs info on the console.
+ *
+ * @param {any[]} args
+ */
+function logInfo( ...args ) {
+	window.console.info( data.i18n.logPrefix, ...args );
+}
+
+/**
+ * Logs warning on the console.
+ *
+ * @param {any[]} args
+ */
+function logWarning( ...args ) {
+	window.console.warn( data.i18n.logPrefix, ...args );
+}
 
 /**
  * Gets the current bfcache session token from a cookie.
@@ -77,8 +98,9 @@ function invalidateCache() {
 
 	// Reload the page to get a copy with the current session token.
 	if ( data.debug ) {
+		logInfo( data.i18n.pageInvalidating );
 		const p = document.createElement( 'p' );
-		p.textContent = data.pageInvalidatedDebugMessage;
+		p.textContent = data.i18n.pageInvalidating;
 		document.body.append( p );
 		setTimeout( reload, 3000 );
 	} else {
@@ -94,13 +116,9 @@ function invalidateCache() {
 function onPageShow( event ) {
 	if ( data.debug ) {
 		if ( event.persisted ) {
-			window.console.info(
-				'[No-cache BFCache] Page restored from bfcache.'
-			);
+			logInfo( data.i18n.pageRestored );
 		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
-			window.console.info(
-				'[No-cache BFCache] Page invalidated from cache via pageshow event handler.'
-			);
+			logInfo( data.i18n.pageInvalidated );
 		}
 		sessionStorage.removeItem( bfcacheInvalidatedStorageKey );
 	}
@@ -122,8 +140,8 @@ if ( data.debug ) {
 		'notRestoredReasons' in navigationEntry &&
 		null !== navigationEntry.notRestoredReasons
 	) {
-		window.console.warn(
-			'[No-cache BFCache] Reasons page navigation not restored from bfcache:',
+		logWarning(
+			data.i18n.notRestoredReasons,
 			navigationEntry.notRestoredReasons
 		);
 	}
