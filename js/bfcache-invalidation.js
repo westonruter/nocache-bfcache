@@ -15,8 +15,20 @@
  * @since 1.0.0
  */
 
+/**
+ * Script module ID.
+ *
+ * @since 1.1.0
+ * @type {string}
+ */
 const moduleId = '@nocache-bfcache/bfcache-invalidation';
 
+/**
+ * JSON script containing the PHP exports.
+ *
+ * @since 1.0.0
+ * @type {HTMLScriptElement}
+ */
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
@@ -26,6 +38,7 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
 /**
  * Exports from PHP.
  *
+ * @since 1.0.0
  * @type {{
  *     cookieName: string,
  *     initialSessionToken: string,
@@ -45,6 +58,7 @@ const data = JSON.parse( jsonScript.text );
 /**
  * Logs info on the console.
  *
+ * @since 1.2.0
  * @param {any[]} args
  */
 function logInfo( ...args ) {
@@ -54,6 +68,7 @@ function logInfo( ...args ) {
 /**
  * Logs warning on the console.
  *
+ * @since 1.2.0
  * @param {any[]} args
  */
 function logWarning( ...args ) {
@@ -65,6 +80,7 @@ function logWarning( ...args ) {
  *
  * A change to the session token indicates that the bfcache needs to be invalidated.
  *
+ * @since 1.0.0
  * @return {string|null} Session token if the cookie is set.
  */
 function getCurrentSessionToken() {
@@ -111,6 +127,7 @@ function invalidateCache() {
 /**
  * Reloads the page when navigating to a page via bfcache and the session has changed.
  *
+ * @since 1.0.0
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
 function onPageShow( event ) {
