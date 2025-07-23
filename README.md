@@ -7,7 +7,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when â
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
-**Stable tag:**   1.1.0  
+**Stable tag:**   1.2.0  
 **License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
@@ -158,6 +158,17 @@ add_filter(
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
 
 ## Changelog
+
+### 1.2.0
+
+* Only run update-dotorg-assets manually on workflow_dispatch ([#16](https://github.com/westonruter/nocache-bfcache/pull/16))
+* Add path data for CSS file ([#15](https://github.com/westonruter/nocache-bfcache/pull/15))
+* Eliminate Broadcast Channel bfcache eviction method ([#18](https://github.com/westonruter/nocache-bfcache/pull/18))
+* Send `Clear-Site-Data: "cache"` header when logging out ([#17](https://github.com/westonruter/nocache-bfcache/pull/17))
+* Integrate with frontend login forms ([#19](https://github.com/westonruter/nocache-bfcache/pull/19))
+* Remove `Clear-Site-Data` bfcache invalidation method ([#20](https://github.com/westonruter/nocache-bfcache/pull/20))
+* Improve robustness of detecting login form submissions ([#21](https://github.com/westonruter/nocache-bfcache/pull/21))
+* Implement HTTP cache invalidation ([#23](https://github.com/westonruter/nocache-bfcache/pull/23))
 
 ### 1.1.0
 
