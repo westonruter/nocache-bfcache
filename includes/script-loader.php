@@ -72,6 +72,14 @@ function register_script_modules(): void {
 		VERSION
 	);
 
+	/*
+	 * Ideally this script would load in the HEAD with async. This would execute it as early as possible before the DOM
+	 * has been fully constructed when a page is restored from the HTTP cache. This would give the script the chance to
+	 * invalidate the page even earlier. Instead, this is currently this is being printed at the end of the BODY in
+	 * classic themes and in the WP Admin, and the associated script data is printed afterward anyway, meaning async
+	 * loading is not yet suitable. See <https://core.trac.wordpress.org/ticket/63486> for what may allow for the API
+	 * to specify whether script modules are printed in the HEAD or in the footer.
+	 */
 	wp_register_script_module(
 		BFCACHE_INVALIDATION_SCRIPT_MODULE_ID,
 		plugins_url( 'js/bfcache-invalidation.js', PLUGIN_FILE ),
@@ -127,7 +135,7 @@ function export_script_module_data( string $module_id, array $module_data ): voi
 }
 
 /**
- * Adds fetchpriority to SCRIPT tags for script modules.
+ * Adds low fetchpriority to SCRIPT tags for script modules.
  *
  * @since 1.2.0
  * @access private
