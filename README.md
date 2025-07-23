@@ -78,6 +78,10 @@ You may also install and update via [Git Updater](https://git-updater.com/) usin
 
 ## FAQ
 
+### What about stale content being served in cached pages?
+
+Please see the [Stale Content in Page Caches](https://weston.ruter.net/2025/07/23/instant-back-forward-navigations-in-wordpress/#stale-content-in-page-caches) section of the above blog post. 
+
 ### What WordPress core tickets does this plugin relate to?
 
 The functionality in this plugin is proposed for WordPress core in Trac ticket [#63636](https://core.trac.wordpress.org/ticket/63636): Enable instant page navigations from browser history via bfcache when sending “nocache” headers.
