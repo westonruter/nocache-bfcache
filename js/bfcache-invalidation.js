@@ -32,6 +32,7 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  *
  * @type {{
  *     cookieName: string,
+ *     initialSessionToken: string,
  *     debug: boolean,
  * }}
  */
@@ -40,8 +41,7 @@ const data = JSON.parse( jsonScript.text );
 /**
  * Gets the current bfcache session token from a cookie.
  *
- * A change to the session token indicates that the bfcache needs to be
- * invalidated.
+ * A change to the session token indicates that the bfcache needs to be invalidated.
  *
  * @return {string|null} Session token if the cookie is set.
  */
@@ -54,11 +54,23 @@ function getCurrentSessionToken() {
 }
 
 /**
- * Initial session token.
+ * Invalidate the cache for the current page by wiping out the page contents and reloading.
  *
- * @type {string|null}
+ * This should not result in an infinite reload because this JS module is only ever served on authenticated pages which
+ * should never be cached in a proxy due to the private directive on the Cache-Control header. However, it is possible
+ * that the page could have been served from a separate cache via a service worker.
+ *
+ * @todo Should there be a safeguard to prevent automatic reloads?
  */
-const initialSessionToken = getCurrentSessionToken();
+function invalidateCache() {
+	if ( data.debug ) {
+		sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
+	}
+
+	// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
+	document.body.innerHTML = '';
+	window.location.reload();
+}
 
 /**
  * Reloads the page when navigating to a page via bfcache and the session has changed.
@@ -81,18 +93,13 @@ function onPageShow( event ) {
 
 	// In the case of bfcache, the event.persisted property is true, and a local variable from the restored JavaScript
 	// heap is looked at.
-	if ( event.persisted && initialSessionToken !== getCurrentSessionToken() ) {
-		if ( data.debug ) {
-			sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
-		}
-
-		// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
-		document.body.innerHTML = '';
-		window.location.reload();
+	if (
+		event.persisted &&
+		data.initialSessionToken !== getCurrentSessionToken()
+	) {
+		invalidateCache();
 	}
 }
-
-window.addEventListener( 'pageshow', onPageShow );
 
 // Log out reasons for why the page was not restored from bfcache when WP_DEBUG is enabled.
 if ( data.debug ) {
@@ -106,4 +113,15 @@ if ( data.debug ) {
 			navigationEntry.notRestoredReasons
 		);
 	}
+}
+
+/*
+ * When the page is restored from the HTTP cache, as early as possible invalidate the page if the session token served
+ * with the page's HTML no longer matches the value of the session token cookie. Otherwise, add a pageshow event
+ * listener to check later when/if the page is restored via bfcache when the event's persisted property is true.
+ */
+if ( data.initialSessionToken !== getCurrentSessionToken() ) {
+	invalidateCache();
+} else {
+	window.addEventListener( 'pageshow', onPageShow );
 }
