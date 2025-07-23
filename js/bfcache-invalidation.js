@@ -137,7 +137,7 @@ function invalidateCache() {
 	if ( data.debug ) {
 		logInfo( data.i18n.pageInvalidating );
 		const p = document.createElement( 'p' );
-		p.textContent = data.i18n.pageInvalidating;
+		p.textContent = data.i18n.logPrefix + ' ' + data.i18n.pageInvalidating;
 		document.body.append( p );
 		setTimeout( reload, 3000 );
 	} else {
