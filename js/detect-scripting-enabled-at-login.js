@@ -13,8 +13,20 @@
  * @since 1.2.0
  */
 
+/**
+ * Script module ID.
+ *
+ * @since 1.1.0
+ * @type {string}
+ */
 const moduleId = '@nocache-bfcache/detect-scripting-enabled-at-login';
 
+/**
+ * JSON script containing the PHP exports.
+ *
+ * @since 1.1.0
+ * @type {HTMLScriptElement}
+ */
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
@@ -22,6 +34,7 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 /**
  * Exports from PHP.
  *
+ * @since 1.1.0
  * @type {{
  *     cookieName: string,
  *     cookiePath: string,
@@ -34,6 +47,7 @@ const data = JSON.parse( jsonScript.text );
 /**
  * Gets the form action from the `submit` event.
  *
+ * @since 1.2.0
  * @param {SubmitEvent} event - Submit event.
  * @return {string} Action.
  */
@@ -67,6 +81,7 @@ function getFormActionFromSubmitEvent( event ) {
  * Note that a hidden input field is not used because plugins like Two Factor may introduce interstitial login screens
  * which drop hidden fields when redirecting to a final authenticated state. See {@link https://github.com/WordPress/two-factor/issues/705}.
  *
+ * @since 1.2.0
  * @param {SubmitEvent} event - Submit event.
  */
 function setCookieOnLoginFormSubmit( event ) {

@@ -7,8 +7,20 @@
  * @since 1.1.0
  */
 
+/**
+ * Script module ID.
+ *
+ * @since 1.1.0
+ * @type {string}
+ */
 const moduleId = '@nocache-bfcache/bfcache-opt-in';
 
+/**
+ * JSON script containing the PHP exports.
+ *
+ * @since 1.0.0
+ * @type {HTMLScriptElement}
+ */
 const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
@@ -16,6 +28,7 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 /**
  * Exports from PHP.
  *
+ * @since 1.1.0
  * @type {{
  *     buttonTemplateId: string,
  * }}
