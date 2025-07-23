@@ -28,11 +28,12 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	}
 
 	$i18n = array(
-		'logPrefix'          => '[No-cache BFCache]',
-		'pageRestored'       => __( 'Page restored from bfcache.', 'nocache-bfcache' ),
-		'pageInvalidating'   => __( 'Cached page is stale. Reloading...', 'nocache-bfcache' ),
-		'pageInvalidated'    => __( 'Page invalidated from cache via pageshow event handler.', 'nocache-bfcache' ),
-		'notRestoredReasons' => __( 'Reasons page navigation not restored from bfcache:', 'nocache-bfcache' ),
+		'logPrefix'               => '[No-cache BFCache]',
+		'pageRestored'            => __( 'Page restored from bfcache.', 'nocache-bfcache' ),
+		'pageInvalidating'        => __( 'Cached page is stale. Reloading...', 'nocache-bfcache' ),
+		'pageInvalidated'         => __( 'Page invalidated from cache via pageshow event handler.', 'nocache-bfcache' ),
+		'notRestoredReasons'      => __( 'Reasons page navigation not restored from bfcache:', 'nocache-bfcache' ),
+		'infiniteReloadPrevented' => __( 'Prevented infinite reloaded.', 'nocache-bfcache' ),
 	);
 
 	wp_enqueue_script_module( BFCACHE_INVALIDATION_SCRIPT_MODULE_ID );

@@ -33,8 +33,6 @@ const jsonScript = /** @type {HTMLScriptElement} */ (
 	document.getElementById( `wp-script-module-data-${ moduleId }` )
 );
 
-const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
-
 /**
  * Exports from PHP.
  *
@@ -42,7 +40,6 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  * @type {{
  *     cookieName: string,
  *     initialSessionToken: string,
- *     invalidatedPageReloadedQueryParam: string,
  *     debug: boolean,
  *     i18n: {
  *         logPrefix: string,
@@ -50,10 +47,20 @@ const bfcacheInvalidatedStorageKey = 'nocache_bfcache_invalidated';
  *         pageInvalidated: string,
  *         pageRestored: string,
  *         notRestoredReasons: string,
+ *         infiniteReloadPrevented: string,
  *     }
  * }}
  */
 const data = JSON.parse( jsonScript.text );
+
+/**
+ * Name for the query param which indicates that a stale page was invalidated by being reloaded.
+ *
+ * @since 1.2.0
+ * @type {string}
+ */
+const invalidatedPageReloadedQueryParam =
+	'nocache_bfcache_invalidated_page_reloaded';
 
 /**
  * Logs info on the console.
@@ -94,19 +101,30 @@ function getCurrentSessionToken() {
 /**
  * Invalidate the cache for the current page by wiping out the page contents and reloading.
  *
- * This should not result in an infinite reload because this JS module is only ever served on authenticated pages which
- * should never be cached in a proxy due to the private directive on the Cache-Control header. However, it is possible
- * that the page could have been served from a separate cache via a service worker.
- *
- * @todo Should there be a safeguard to prevent automatic reloads?
+ * @since 1.2.0
  */
 function invalidateCache() {
-	if ( data.debug ) {
-		sessionStorage.setItem( bfcacheInvalidatedStorageKey, '1' );
+	const currentUrl = new URL( window.location.href );
+
+	// Guard against infinite reloads.
+	if ( currentUrl.searchParams.has( invalidatedPageReloadedQueryParam ) ) {
+		if ( data.debug ) {
+			logWarning( data.i18n.infiniteReloadPrevented );
+		}
+		return;
 	}
 
 	// Immediately clear out the contents of the page since otherwise the authenticated content will appear while the page reloads.
 	document.documentElement.innerHTML = '';
+
+	// Add a query parameter to the URL to indicate the page cache was invalidated. This is useful to guard against the
+	// possibility of an infinite reload. It also is useful by busting any caches on the server, in the off chance that
+	// the authenticated response was cached for some reason (e.g. in a service worker).
+	currentUrl.searchParams.set(
+		invalidatedPageReloadedQueryParam,
+		String( Math.random() )
+	);
+	history.replaceState( {}, '', currentUrl.href );
 
 	const reload = () => {
 		window.location.reload();
@@ -131,13 +149,10 @@ function invalidateCache() {
  * @param {PageTransitionEvent} event - The pageshow event object.
  */
 function onPageShow( event ) {
-	if ( data.debug ) {
-		if ( event.persisted ) {
-			logInfo( data.i18n.pageRestored );
-		} else if ( sessionStorage.getItem( bfcacheInvalidatedStorageKey ) ) {
-			logInfo( data.i18n.pageInvalidated );
-		}
-		sessionStorage.removeItem( bfcacheInvalidatedStorageKey );
+	const currentUrl = new URL( window.location.href );
+
+	if ( data.debug && event.persisted ) {
+		logInfo( data.i18n.pageRestored );
 	}
 
 	// In the case of bfcache, the event.persisted property is true, and a local variable from the restored JavaScript
@@ -147,6 +162,13 @@ function onPageShow( event ) {
 		data.initialSessionToken !== getCurrentSessionToken()
 	) {
 		invalidateCache();
+	}
+
+	// Purge the invalidatedPageReloadedQueryParam from the URL after a successful purge.
+	if ( currentUrl.searchParams.has( invalidatedPageReloadedQueryParam ) ) {
+		logInfo( data.i18n.pageInvalidated );
+		currentUrl.searchParams.delete( invalidatedPageReloadedQueryParam );
+		history.replaceState( {}, '', currentUrl.href );
 	}
 }
 
