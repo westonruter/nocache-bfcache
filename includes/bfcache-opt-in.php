@@ -210,6 +210,12 @@ function attach_session_information( $session ): array {
 	if ( ! is_array( $session ) ) {
 		$session = array();
 	}
+
+	/*
+	 * A cookie is used as opposed to a hidden input field on the login form for improved plugin compatibility. Plugins
+	 * like Two Factor add an interstitial login screen which doesn't carry those hidden fields on to the final
+	 * authentication request when the session is created. See <https://github.com/WordPress/two-factor/issues/705>.
+	 */
 	if ( isset( $_POST['rememberme'] ) && isset( $_COOKIE[ JAVASCRIPT_ENABLED_COOKIE_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] = generate_bfcache_session_token();
 	}
