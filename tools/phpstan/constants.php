@@ -2,7 +2,7 @@
 /**
  * Constants for PHPStan static analysis.
  *
- * @package RememberMeQuickly
+ * @package WestonRuter\NocacheBFCache
  */
 
 define( 'COOKIE_DOMAIN', '.example.com' );
