@@ -3,8 +3,7 @@
 	<config name="text_domain" value="nocache-bfcache"/>
 
 	<rule ref="vendor/wpackagist-plugin/plugin-check/vendor/plugin-check/phpcs-sniffs/PluginCheck/ruleset.xml" />
-	<!-- TODO: Once a new version of Plugin Check is released, replace the following line with a reference to vendor/wpackagist-plugin/plugin-check/vendor/plugin-check/phpcs-rulesets/plugin-check.ruleset.xml -->
-	<rule ref="tools/phpcs/plugin-check.ruleset.xml" />
+	<rule ref="vendor/wpackagist-plugin/plugin-check/phpcs-rulesets/plugin-check.ruleset.xml" />
 
 	<rule ref="PHPCompatibility"/>
 	<config name="testVersion" value="7.2-"/>
