@@ -47,12 +47,32 @@ const BUTTON_TEMPLATE_ID = 'nocache-bfcache-feature-button-tmpl';
 const BFCACHE_SESSION_TOKEN_USER_SESSION_KEY = 'bfcache_session_token';
 
 /**
+ * Determines whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
+ *
+ * @return bool Whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
+ */
+function is_remember_me_used_as_opt_in(): bool {
+	/**
+	 * Filters whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
+	 *
+	 * @since n.e.x.t
+	 *
+	 * @param bool $enabled Whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
+	 */
+	return (bool) apply_filters( 'nocache_bfcache_use_remember_me_as_opt_in', true );
+}
+
+/**
  * Enqueues bfcache opt-in script module and style.
  *
  * @since 1.1.0
  * @access private
  */
 function enqueue_bfcache_opt_in_script_module_and_style(): void {
+	if ( ! is_remember_me_used_as_opt_in() ) {
+		return;
+	}
+
 	wp_enqueue_style( BFCACHE_OPT_IN_STYLE_HANDLE );
 
 	wp_enqueue_script_module( BFCACHE_OPT_IN_SCRIPT_MODULE_ID );
@@ -216,7 +236,15 @@ function attach_session_information( $session ): array {
 	 * like Two Factor add an interstitial login screen which doesn't carry those hidden fields on to the final
 	 * authentication request when the session is created. See <https://github.com/WordPress/two-factor/issues/705>.
 	 */
-	if ( isset( $_POST['rememberme'] ) && isset( $_COOKIE[ JAVASCRIPT_ENABLED_COOKIE_NAME ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if (
+		(
+			isset( $_POST['rememberme'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			||
+			! is_remember_me_used_as_opt_in()
+		)
+		&&
+		isset( $_COOKIE[ JAVASCRIPT_ENABLED_COOKIE_NAME ] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	) {
 		$session[ BFCACHE_SESSION_TOKEN_USER_SESSION_KEY ] = generate_bfcache_session_token();
 	}
 	return $session;
