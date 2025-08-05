@@ -13,10 +13,10 @@
  * GitHub Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Primary Branch: main
  *
- * @package WestonRuter\NocacheBFCache
+ * @package NocacheBFCache
  */
 
-namespace WestonRuter\NocacheBFCache;
+namespace NocacheBFCache;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
