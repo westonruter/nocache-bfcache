@@ -3,10 +3,10 @@
  * User opt-in for BFCache.
  *
  * @since 1.1.0
- * @package WestonRuter\NocacheBFCache
+ * @package NocacheBFCache
  */
 
-namespace WestonRuter\NocacheBFCache;
+namespace NocacheBFCache;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
