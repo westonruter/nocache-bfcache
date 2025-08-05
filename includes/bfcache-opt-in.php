@@ -416,7 +416,7 @@ function filter_nocache_headers( $headers ): array {
 	}
 
 	// If a user is logged in, then enabling bfcache is contingent upon the "Remember Me" opt-in and JS being enabled, since bfcache invalidation becomes important.
-	if ( is_user_logged_in() ) {
+	if ( function_exists( 'is_user_logged_in' ) && is_user_logged_in() ) {
 		// Abort if the user session doesn't have bfcache enabled since they hadn't logged in with "Remember Me" and JavaScript enabled.
 		$bfcache_session_token = get_user_bfcache_session_token();
 		if ( null === $bfcache_session_token ) {
