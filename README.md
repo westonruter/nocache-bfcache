@@ -4,7 +4,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when â
 
 ![Banner](.wordpress-org/banner.svg)
 
-**Contributors:** [westonruter](https://profile.wordpress.org/westonruter)  
+**Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
 **Stable tag:**   1.2.0  
