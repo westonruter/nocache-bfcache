@@ -1,4 +1,4 @@
-# Repository Configuration Workflows
+# Repository Workflow Configuration
 
 ## [`auto-merge.yml`](auto-merge.yml)
 
