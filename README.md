@@ -7,7 +7,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when â
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
-**Stable tag:**   1.2.0  
+**Stable tag:**   1.3.0  
 **License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
@@ -168,6 +168,12 @@ add_filter(
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
 
 ## Changelog
+
+### 1.3.0
+
+* Add `nocache_bfcache_use_remember_me_as_opt_in` filter to opt out of opt-in ([#29](https://github.com/westonruter/nocache-bfcache/pull/29))
+* Ensure `is_user_logged_in()` function exists before using ([#37](https://github.com/westonruter/nocache-bfcache/pull/37))
+* Update plugin-check to v1.6 and reuse PHPCS ruleset ([#27](https://github.com/westonruter/nocache-bfcache/pull/27))
 
 ### 1.2.0
 
