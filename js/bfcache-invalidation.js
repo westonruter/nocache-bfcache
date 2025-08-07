@@ -146,6 +146,25 @@ function invalidateCache() {
 }
 
 /**
+ * Releads the page when navigating to a page via bfcache and the session has changed.
+ *
+ * This is not as widely supported as the pageshow event, but it has the added benefit of running before the page is
+ * displayed, allowing the page contents to be hidden without a split second flash of stale content.
+ *
+ * @since n.e.x.t
+ */
+function onPageReveal() {
+	if (
+		// @ts-ignore
+		window.navigation?.activation?.navigationType === 'traverse' &&
+		data.initialSessionToken !== getCurrentSessionToken()
+	) {
+		window.removeEventListener( 'pageshow', onPageShow );
+		invalidateCache();
+	}
+}
+
+/**
  * Reloads the page when navigating to a page via bfcache and the session has changed.
  *
  * @since 1.0.0
@@ -197,5 +216,6 @@ if ( data.debug ) {
 if ( data.initialSessionToken !== getCurrentSessionToken() ) {
 	invalidateCache();
 } else {
+	window.addEventListener( 'pagereveal', onPageReveal );
 	window.addEventListener( 'pageshow', onPageShow );
 }
