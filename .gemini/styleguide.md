@@ -26,7 +26,7 @@ Every file, function, class, method constant, and global variable must have an a
 
 ## PHP
 
-Whenever possible, the most specific PHP types should be used, depending on the PHP version specified in `phpcs.xml.dist`. The PHP type hints should be compatible with the minimum supported version of WordPress, which is PHP 7.2.
+Whenever possible, the most specific PHP type hints should be used, when compatible with the minimum version of PHP supported by WordPress, unless the `testVersion` config in `phpcs.xml.dist` is higher.
 
 When native PHP type cannot be used, PHPStan's [PHPDoc Types](https://phpstan.org/writing-php-code/phpdoc-types) should be used, including not only the basic types but also subtypes like `non-empty-string`, [integer ranges](https://phpstan.org/writing-php-code/phpdoc-types#integer-ranges), [general arrays](https://phpstan.org/writing-php-code/phpdoc-types#general-arrays), and especially [array shapes](https://phpstan.org/writing-php-code/phpdoc-types#array-shapes). The types should comply with PHPStan's level 10. 
 
