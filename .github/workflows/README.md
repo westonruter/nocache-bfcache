@@ -14,7 +14,7 @@ Then add this as the `WORKFLOW_SECRET` to the repository's settings under **Secu
 
 This workflow is triggered when a new release tag is created.
 
-The workflow requires two action secrets to be populated as required by [10up/action-wordpress-plugin-deploy](https://github.com/10up/action-wordpress-plugin-deploy): `SVN_USERNAME` and `SVN_PASSWORD`. These are the username and password for a WordPress.org user account which has commit access to the SVN repo. The SVN credentials can be located at `https://profiles.wordpress.org/$DOTORG_USERNAME/profile/edit/group/3/?screen=svn-password`, where the SVN password begins with "svn_".
+The workflow requires two action secrets to be populated as required by [10up/action-wordpress-plugin-deploy](https://github.com/10up/action-wordpress-plugin-deploy): `SVN_USERNAME` and `SVN_PASSWORD`. These are the username and password for a WordPress.org user account which has commit access to the SVN repo. The SVN credentials can be located in your dotorg profile's [Account & Security](https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password) where the SVN password begins with "svn_".
 
 Add these secrets to repository's settings under **Security > Secrets and variables > Actions** (`./settings/secrets/actions`).
 
