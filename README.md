@@ -2,7 +2,8 @@
 
 Enables back/forward cache (bfcache) for instant history navigations even when “nocache” headers are sent, such as when a user is logged in.
 
-![Banner](.wordpress-org/banner.svg)
+<!-- markdownlint-disable-next-line no-inline-html -->
+<img src=".wordpress-org/banner.svg" alt="Banner for the No-cache BFCache plugin" width="1544" height="500">
 
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
