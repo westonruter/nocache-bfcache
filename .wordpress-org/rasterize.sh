@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 if ! command -v rsvg-convert >/dev/null 2>&1; then
 	echo "Error: The rsvg-convert  is not available."
