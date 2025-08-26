@@ -3,7 +3,7 @@
 /**
  * User opt-in for BFCache.
  *
- * @since 1.1.0
+ * @since 1.x.0
  * @package WestonRuter\NocacheBFCache
  */
 
@@ -25,7 +25,7 @@ const BFCACHE_ENABLED_KEY = 'bfcache_enabled';
  * - One to enable BFCache by default.
  * These settings are placed in the 'default' section of the 'reading' options page.
  *
- * @since 1.0.0
+ * @since 1.x.0
  * @return void
  */
 function bfcache_settings_field() {
@@ -70,7 +70,7 @@ add_action('admin_init', __NAMESPACE__ . '\bfcache_settings_field');
  * input field with the correct 'checked' attribute. The label is included
  * for user clarity and accessibility.
  *
- * @since 1.0.0
+ * @since 1.x.0
  * @return void
  */
 function render_disallow_unload_html(): void {
@@ -90,7 +90,7 @@ function render_disallow_unload_html(): void {
  * input field with the correct 'checked' attribute. It ensures the name attribute
  * is correctly set to save the option value.
  *
- * @since 1.0.0
+ * @since 1.x.0
  * @return void
  */
 function render_bfcache_enabled_html(): void {

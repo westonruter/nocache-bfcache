@@ -534,12 +534,25 @@ add_filter('wp_headers', __NAMESPACE__ . '\dissallow_unload_events_permissions_p
 
 
 // @TODO: function name
+/**
+ * Conditionally enables BFCache for logged-in users regardless of the "Remember Me" checkbox.
+ *
+ * This function checks if the 'bfcache_enabled' option is true. If it is,
+ * it hooks into a WordPress filter to force a specific behavior.
+ *
+ * It attaches to the `init` action to ensure that the WordPress environment
+ * is fully loaded and `get_option()` is available.
+ *
+ * @since 1.x.0
+ */
+
 function bfcache_enabled_without_remember_me() {
     // Check if the 'bfcache_enabled' option is set to a truthy value
     if ( get_option('bfcache_enabled') ) {
 
-        // add_action( 'wp_loaded', 'my_custom_action_function' );
+		debug_log(get_option('bfcache_enabled'), 'bfcache_enabled_without_remember_me');
+  
 		add_filter( 'nocache_bfcache_use_remember_me_as_opt_in', '__return_false' );
     }
 }
-add_action( 'init', 'setup_bfcache_action' );
+add_action( 'init', __NAMESPACE__ . '\bfcache_enabled_without_remember_me' );
