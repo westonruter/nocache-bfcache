@@ -423,6 +423,10 @@ function filter_nocache_headers( $headers ): array {
 			return $headers;
 		}
 
+		debug_log("Im inside the bfcache-opt-in.php file");
+		debug_log($headers, "Headers ---> ");
+
+
 		// The bfcache session cookie is normally set during log in. If it was deleted for some reason, then it needs to be
 		// re-set so that it is available to JavaScript so that the pageshow event can invalidate bfcache when the cookie
 		// has changed. The bfcache session token is only generated when JavaScript has been detected to be enabled and
@@ -451,8 +455,11 @@ function filter_nocache_headers( $headers ): array {
 		}
 	}
 
+
 	// See the commit message for <https://core.trac.wordpress.org/changeset/55968> which the following seeks to unto in how it introduced 'no-store'.
 	$directives = (array) preg_split( '/\s*,\s*/', $headers['Cache-Control'] );
+
+		debug_log($directives, "directives --> ");
 	if ( in_array( 'no-store', $directives, true ) ) {
 		// Remove 'no-store' so that the browser is allowed to store the response in the bfcache.
 		// And remove 'public' too for good measure (although it surely would not be present) since 'private' is added below.
@@ -492,3 +499,35 @@ add_filter(
 	__NAMESPACE__ . '\filter_nocache_headers',
 	1000
 );
+
+
+/**
+ * Conditionally adds the Permissions-Policy header to enable BFCache.
+ *
+ * This function checks if the 'bfcache_block_unload_events' option is enabled.
+ * If it is, the Permissions-Policy header with 'unload=()' is added to the HTTP
+ * response. This prevents 'unload' event listeners from firing, allowing the
+ * browser's Back/Forward Cache (BFCache) to function and improve navigation
+ * performance.
+ *
+ * @param array $headers An array of HTTP headers to be sent.
+ * @return array The filtered array of headers.
+ */
+function dissallow_unload_events_permissions_policy_header( array $headers ): array {
+    // Get the value of the 'bfcache_block_unload_events' option from the database.
+	// @TODO: this is a const in bfcache-options 
+    $block_unload = get_option('bfcache_disallow_unload_events');
+
+    // Check if the value is set to ON
+    if ($block_unload === '1') {
+        // Add the Permissions-Policy header to the array.
+        $headers['Permissions-Policy'] = 'unload=()';
+    }
+
+	debug_log($headers, 'dissallow_unload_events_permissions_policy_header');
+
+    return $headers;
+}
+
+// @TODO: Is this correct?
+add_filter('wp_headers', __NAMESPACE__ . '\dissallow_unload_events_permissions_policy_header', 1001);
