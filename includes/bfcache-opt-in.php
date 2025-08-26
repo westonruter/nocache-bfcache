@@ -531,3 +531,15 @@ function dissallow_unload_events_permissions_policy_header( array $headers ): ar
 
 // @TODO: Is this correct?
 add_filter('wp_headers', __NAMESPACE__ . '\dissallow_unload_events_permissions_policy_header', 1001);
+
+
+// @TODO: function name
+function bfcache_enabled_without_remember_me() {
+    // Check if the 'bfcache_enabled' option is set to a truthy value
+    if ( get_option('bfcache_enabled') ) {
+
+        // add_action( 'wp_loaded', 'my_custom_action_function' );
+		add_filter( 'nocache_bfcache_use_remember_me_as_opt_in', '__return_false' );
+    }
+}
+add_action( 'init', 'setup_bfcache_action' );
