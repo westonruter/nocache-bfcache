@@ -12,6 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // @codeCoverageIgnore
 }
 
+// to use consts
+// @TODO: is this the best way to get these consts?
+require "bfcache-options.php";
+
 use WP_Session_Tokens;
 
 /**
@@ -423,10 +427,6 @@ function filter_nocache_headers( $headers ): array {
 			return $headers;
 		}
 
-		debug_log("Im inside the bfcache-opt-in.php file");
-		debug_log($headers, "Headers ---> ");
-
-
 		// The bfcache session cookie is normally set during log in. If it was deleted for some reason, then it needs to be
 		// re-set so that it is available to JavaScript so that the pageshow event can invalidate bfcache when the cookie
 		// has changed. The bfcache session token is only generated when JavaScript has been detected to be enabled and
@@ -459,7 +459,6 @@ function filter_nocache_headers( $headers ): array {
 	// See the commit message for <https://core.trac.wordpress.org/changeset/55968> which the following seeks to unto in how it introduced 'no-store'.
 	$directives = (array) preg_split( '/\s*,\s*/', $headers['Cache-Control'] );
 
-		debug_log($directives, "directives --> ");
 	if ( in_array( 'no-store', $directives, true ) ) {
 		// Remove 'no-store' so that the browser is allowed to store the response in the bfcache.
 		// And remove 'public' too for good measure (although it surely would not be present) since 'private' is added below.
@@ -510,13 +509,15 @@ add_filter(
  * browser's Back/Forward Cache (BFCache) to function and improve navigation
  * performance.
  *
- * @param array $headers An array of HTTP headers to be sent.
+ * @param array<string, string> $headers An array of HTTP headers to be sent.
  * @return array The filtered array of headers.
+ * @since n.e.x.t
  */
-function dissallow_unload_events_permissions_policy_header( array $headers ): array {
+
+
+function disallow_unload_events_permissions_policy_header( array $headers ): array {
     // Get the value of the 'bfcache_block_unload_events' option from the database.
-	// @TODO: this is a const in bfcache-options 
-    $block_unload = get_option('bfcache_disallow_unload_events');
+    $block_unload = get_option(BFCACHE_DISALLOW_UNLOAD_KEY);
 
     // Check if the value is set to ON
     if ($block_unload === '1') {
@@ -524,13 +525,11 @@ function dissallow_unload_events_permissions_policy_header( array $headers ): ar
         $headers['Permissions-Policy'] = 'unload=()';
     }
 
-	debug_log($headers, 'dissallow_unload_events_permissions_policy_header');
-
     return $headers;
 }
 
 // @TODO: Is this correct?
-add_filter('wp_headers', __NAMESPACE__ . '\dissallow_unload_events_permissions_policy_header', 1001);
+add_filter('wp_headers', __NAMESPACE__ . '\disallow_unload_events_permissions_policy_header', 1001);
 
 
 // @TODO: function name
@@ -543,15 +542,12 @@ add_filter('wp_headers', __NAMESPACE__ . '\dissallow_unload_events_permissions_p
  * It attaches to the `init` action to ensure that the WordPress environment
  * is fully loaded and `get_option()` is available.
  *
- * @since 1.x.0
+ * @since n.e.x.t
  */
 
 function bfcache_enabled_without_remember_me() {
     // Check if the 'bfcache_enabled' option is set to a truthy value
-    if ( get_option('bfcache_enabled') ) {
-
-		debug_log(get_option('bfcache_enabled'), 'bfcache_enabled_without_remember_me');
-  
+    if ( get_option(BFCACHE_ENABLED_KEY) ) {
 		add_filter( 'nocache_bfcache_use_remember_me_as_opt_in', '__return_false' );
     }
 }
