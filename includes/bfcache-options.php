@@ -30,13 +30,13 @@ function bfcache_settings_field() {
     register_setting(
         BFCACHE_OPTIONS_PAGE, // The page to add the setting to
         BFCACHE_DISALLOW_UNLOAD_KEY, // The name of your option
-        'sanitize_text_field' // The sanitization callback function
+        'rest_sanitize_boolean' // The sanitization callback function
     );
 
     register_setting(
         BFCACHE_OPTIONS_PAGE,
         BFCACHE_ENABLED_KEY,
-        'sanitize_text_field'
+        'rest_sanitize_boolean'
     );
 
 
