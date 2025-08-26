@@ -49,13 +49,17 @@ function bfcache_settings_field() {
         'default'
     );
 
-    add_settings_field(
-        BFCACHE_ENABLED_KEY,
-        'Enable BFCache by default', // Title
-        __NAMESPACE__ . '\render_bfcache_enabled_html', //callback
-        BFCACHE_OPTIONS_PAGE, // section
-        'default'
-    );
+    // If this filter hasn't been declared in code, then provide is as a option
+    if (!has_filter( 'nocache_bfcache_use_remember_me_as_opt_in' )) {
+        add_settings_field(
+            BFCACHE_ENABLED_KEY,
+            'Enable BFCache by default', // Title
+            __NAMESPACE__ . '\render_bfcache_enabled_html', //callback
+            BFCACHE_OPTIONS_PAGE, // section
+            'default'
+        );        
+    }
+
 }
 
 add_action('admin_init', __NAMESPACE__ . '\bfcache_settings_field');

@@ -63,7 +63,7 @@ function is_remember_me_used_as_opt_in(): bool {
 	 *
 	 * @param bool $enabled Whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
 	 */
-	return (bool) apply_filters( 'nocache_bfcache_use_remember_me_as_opt_in', true );
+	return (bool) apply_filters( 'nocache_bfcache_use_remember_me_as_opt_in',  !get_option( 'bfcache_enabled_by_default' ) );
 }
 
 /**
@@ -509,13 +509,13 @@ add_filter(
  * browser's Back/Forward Cache (BFCache) to function and improve navigation
  * performance.
  *
- * @param array<string, string> $headers An array of HTTP headers to be sent.
- * @return array The filtered array of headers.
+ * @param array<string, string>|mixed $headers An array of HTTP headers to be sent.
+ * @return array<string, string> The filtered array of headers.
  * @since n.e.x.t
  */
 
 
-function disallow_unload_events_permissions_policy_header( array $headers ): array {
+function disallow_unload_events_permissions_policy_header( $headers ): array {
     // Get the value of the 'bfcache_block_unload_events' option from the database.
     $block_unload = get_option(BFCACHE_DISALLOW_UNLOAD_KEY);
 
@@ -528,27 +528,4 @@ function disallow_unload_events_permissions_policy_header( array $headers ): arr
     return $headers;
 }
 
-// @TODO: Is this correct?
 add_filter('wp_headers', __NAMESPACE__ . '\disallow_unload_events_permissions_policy_header', 1001);
-
-
-// @TODO: function name
-/**
- * Conditionally enables BFCache for logged-in users regardless of the "Remember Me" checkbox.
- *
- * This function checks if the 'bfcache_enabled' option is true. If it is,
- * it hooks into a WordPress filter to force a specific behavior.
- *
- * It attaches to the `init` action to ensure that the WordPress environment
- * is fully loaded and `get_option()` is available.
- *
- * @since n.e.x.t
- */
-
-function bfcache_enabled_without_remember_me() {
-    // Check if the 'bfcache_enabled' option is set to a truthy value
-    if ( get_option(BFCACHE_ENABLED_KEY) ) {
-		add_filter( 'nocache_bfcache_use_remember_me_as_opt_in', '__return_false' );
-    }
-}
-add_action( 'init', __NAMESPACE__ . '\bfcache_enabled_without_remember_me' );
