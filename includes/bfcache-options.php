@@ -13,6 +13,7 @@ namespace WestonRuter\NocacheBFCache;
 const BFCACHE_OPTIONS_PAGE = 'reading';
 const BFCACHE_DISALLOW_UNLOAD_KEY = 'bfcache_disallow_unload_events';
 const BFCACHE_ENABLED_KEY = 'bfcache_enabled';
+const BFCACHE_TEXT_DOMAIN = 'no-cache-bfcache'; // @TODO: Move to main file?
 
 /**
  * Registers the settings and fields for the BFCache options on the WordPress Reading settings page.
@@ -75,9 +76,21 @@ add_action('admin_init', __NAMESPACE__ . '\bfcache_settings_field');
  * @return void
  */
 function render_disallow_unload_html(): void {
-    $option = get_option(BFCACHE_DISALLOW_UNLOAD_KEY);
+    $option_key = BFCACHE_DISALLOW_UNLOAD_KEY;
+    $option = get_option($option_key);
 
-    echo '<label><input name="' . esc_attr(BFCACHE_DISALLOW_UNLOAD_KEY) . '" type="checkbox" value="1" ' . checked($option, 1, false) . '> Disallow Unload JS Events</label>';
+    $checked = checked($option, 1, false);
+
+    $label_text = esc_html__('Disallow Unload JS Events', BFCACHE_TEXT_DOMAIN);
+
+    $html = sprintf(
+        '<label><input name="%1$s" type="checkbox" value="1" %2$s> %3$s</label>',
+        esc_attr($option_key),
+        $checked,
+        $label_text
+    );
+
+    echo $html;
 }
 
 /**
@@ -91,7 +104,19 @@ function render_disallow_unload_html(): void {
  * @return void
  */
 function render_bfcache_enabled_html(): void {
-    $option = get_option(BFCACHE_ENABLED_KEY);
+    $option_key = BFCACHE_ENABLED_KEY;
+    $option = get_option($option_key);
 
-    echo '<label><input name="' . esc_attr(BFCACHE_ENABLED_KEY) . '" type="checkbox" value="1" ' . checked($option, 1, false) . '> Enable BFCache by default</label>';
+    $checked = checked($option, 1, false);
+
+    $label_text = esc_html__('Enable BFCache by default', BFCACHE_TEXT_DOMAIN);
+
+    $html = sprintf(
+        '<label><input name="%1$s" type="checkbox" value="1" %2$s> %3$s</label>',
+        esc_attr($option_key),
+        $checked,
+        $label_text
+    );
+
+    echo $html;
 }
