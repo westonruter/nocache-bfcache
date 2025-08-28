@@ -28,7 +28,7 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	}
 
 	$i18n = array(
-		'logPrefix'               => '[No-cache BFCache]',
+		'logPrefix'               => '[Instant Back/Forward]',
 		'pageRestored'            => __( 'Page restored from bfcache.', 'nocache-bfcache' ),
 		'pageInvalidating'        => __( 'Cached page is stale. Reloading...', 'nocache-bfcache' ),
 		'pageInvalidated'         => __( 'Page invalidated from cache via pageshow event handler.', 'nocache-bfcache' ),
