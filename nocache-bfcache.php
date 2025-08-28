@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: No-cache BFCache
+ * Plugin Name: Instant Back/Forward
  * Plugin URI: https://github.com/westonruter/nocache-bfcache
  * Description: Enables back/forward cache (bfcache) for instant history navigations even when "nocache" headers are sent, such as when a user is logged in. <strong>To see the effect, you must log out and log back in again, ensuring "Remember Me" is checked.</strong>
  * Requires at least: 6.8

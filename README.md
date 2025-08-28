@@ -1,9 +1,9 @@
-# No-cache BFCache
+# Instant Back/Forward
 
 Enables back/forward cache (bfcache) for instant history navigations even when “nocache” headers are sent, such as when a user is logged in.
 
 <!-- markdownlint-disable-next-line no-inline-html -->
-<img src=".wordpress-org/banner.svg" alt="Banner for the No-cache BFCache plugin" width="1544" height="500">
+<img src=".wordpress-org/banner.svg" alt="Banner for the Instant Back/Forward plugin" width="1544" height="500">
 
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
@@ -66,8 +66,8 @@ With bfcache:
 ### Installation from within WordPress
 
 1. Visit **Plugins > Add New** in the WordPress Admin.
-2. Search for **No-cache BFCache**.
-3. Install and activate the **No-cache BFCache** plugin.
+2. Search for **Instant Back/Forward**.
+3. Install and activate the **Instant Back/Forward** plugin.
 4. Log out of WordPress and log back in with the “Remember Me” checkbox checked.
 
 You may also install and update via [Git Updater](https://git-updater.com/) using the [plugin's GitHub URL](https://github.com/westonruter/nocache-bfcache).
