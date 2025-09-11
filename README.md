@@ -8,7 +8,7 @@ Enables back/forward cache (bfcache) for instant history navigations even when â
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
-**Stable tag:**   1.3.0  
+**Stable tag:**   1.3.1  
 **License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
@@ -169,6 +169,10 @@ add_filter(
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
 
 ## Changelog
+
+### 1.3.1
+
+* Rename plugin to "Instant Back/Forward" ([https://github.com/westonruter/nocache-bfcache/pull/49](https://github.com/westonruter/nocache-bfcache/pull/49))
 
 ### 1.3.0
 
