@@ -8,10 +8,12 @@ Enables back/forward cache (bfcache) for instant history navigations even when �
 **Contributors:** [westonruter](https://profile.wordpress.org/westonruter), [wordpressdotorg](https://profile.wordpress.org/wordpressdotorg), [performanceteam](https://profile.wordpress.org/performanceteam)  
 **Tags:**         performance, caching  
 **Tested up to:** 6.8  
-**Stable tag:**   1.3.0  
+**Stable tag:**   1.3.1  
 **License:**      [GPLv2 or later](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Description
+
+_This plugin was formerly called as “No-cache BFCache”, which admittedly was a poor jargony name and was too narrowly scoped._
 
 This plugin enables instant back/forward navigation via the browser's [bfcache](https://developer.mozilla.org/en-US/docs/Glossary/bfcache). It does this by removing the `no-store` directive from the `Cache-Control` response header, which WordPress sends by default when `nocache_headers()` is called. This happens primarily when a user is logged in, but some plugins may send these “no-cache” headers such as on the Cart or Checkout pages for an e-commerce site. **Upon activation, to see the effect, you must log out of WordPress and log back in again, ensuring “Remember Me” is checked.** Even so, another plugin, theme or server configuration may be active which makes pages [ineligible for bfcache](https://web.dev/articles/bfcache#optimize) due to other [blocking reasons](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#blocking_reasons). Nevertheless, the removal of `no-store` will _still speed up back/forward navigations_ since pages may then be served from the browser's HTTP cache, eliminating the need to re-download the HTML from the server. This is a feature plugin to implement [#63636](https://core.trac.wordpress.org/ticket/63636) in WordPress core.
 
@@ -133,7 +135,7 @@ Here you'll also see:
 
 _Pending Support: Chrome support for these reasons is pending i.e. they will not prevent the page from being eligible for back/forward cache in a future version of Chrome._
 
-The reason for this is likely the “[Notifications](https://jetpack.com/support/notifications/)” module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click “Modules”. Here you can disable the Notifications module.
+The reason for this is the “[Notifications](https://jetpack.com/support/notifications/)” module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click “Modules”. Here you can disable the Notifications module. Otherwise, see a filed [Jetpack issue](https://github.com/Automattic/jetpack/issues/45149) to improve the WebSocket handling so that it doesn't disable bfcache. 
 
 Aside from this, bfcache may be disabled on some Jetpack screens because the plugin is still sending `no-store`. A [pull request](https://github.com/Automattic/jetpack/pull/44322) has been opened to remove these.
 
@@ -169,6 +171,10 @@ add_filter(
 ![Chrome DevTools showing successful bfcache navigation](.wordpress-org/screenshot-3.png)
 
 ## Changelog
+
+### 1.3.1
+
+* Rename plugin to "Instant Back/Forward" ([https://github.com/westonruter/nocache-bfcache/pull/49](https://github.com/westonruter/nocache-bfcache/pull/49))
 
 ### 1.3.0
 
