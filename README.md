@@ -13,6 +13,8 @@ Enables back/forward cache (bfcache) for instant history navigations even when �
 
 ## Description
 
+_This plugin was formerly called as “No-cache BFCache”, which admittedly was a poor jargony name and was too narrowly scoped._
+
 This plugin enables instant back/forward navigation via the browser's [bfcache](https://developer.mozilla.org/en-US/docs/Glossary/bfcache). It does this by removing the `no-store` directive from the `Cache-Control` response header, which WordPress sends by default when `nocache_headers()` is called. This happens primarily when a user is logged in, but some plugins may send these “no-cache” headers such as on the Cart or Checkout pages for an e-commerce site. **Upon activation, to see the effect, you must log out of WordPress and log back in again, ensuring “Remember Me” is checked.** Even so, another plugin, theme or server configuration may be active which makes pages [ineligible for bfcache](https://web.dev/articles/bfcache#optimize) due to other [blocking reasons](https://developer.mozilla.org/en-US/docs/Web/API/Performance_API/Monitoring_bfcache_blocking_reasons#blocking_reasons). Nevertheless, the removal of `no-store` will _still speed up back/forward navigations_ since pages may then be served from the browser's HTTP cache, eliminating the need to re-download the HTML from the server. This is a feature plugin to implement [#63636](https://core.trac.wordpress.org/ticket/63636) in WordPress core.
 
 Blog post: [Instant Back/Forward Navigations in WordPress](https://weston.ruter.net/2025/07/23/instant-back-forward-navigations-in-wordpress/)
