@@ -125,22 +125,6 @@ If you can identify the plugin or theme which is setting `Cache-Control: no-stor
 
 The [Performance Lab](https://wordpress.org/plugins/performance-lab/) plugin also includes a [Site Health test](https://github.com/WordPress/performance/issues/1692) for whether the server is sending the `Cache-Control: no-store` header.
 
-### How can I enable bfcache when Jetpack is active?
-
-When Jetpack is active, you may see that bfcache isn't working on any page and that the “Back/forward cache” panel of Chrome DevTools says:
-
-_Pages with WebSocket cannot enter back/forward cache._
-
-Here you'll also see:
-
-_Pending Support: Chrome support for these reasons is pending i.e. they will not prevent the page from being eligible for back/forward cache in a future version of Chrome._
-
-The reason for this is the “[Notifications](https://jetpack.com/support/notifications/)” module of Jetpack, which shows up as a bell icon in the top right of the admin bar. If you do not rely on this feature of Jetpack, you can enable bfcache by going to WP Admin > Jetpack > Settings and in the footer click “Modules”. Here you can disable the Notifications module. Otherwise, see a filed [Jetpack issue](https://github.com/Automattic/jetpack/issues/45149) to improve the WebSocket handling so that it doesn't disable bfcache. 
-
-Aside from this, bfcache may be disabled on some Jetpack screens because the plugin is still sending `no-store`. A [pull request](https://github.com/Automattic/jetpack/pull/44322) has been opened to remove these.
-
-Lastly, the Akismet screen has an `iframe` which contains a page with an `unload` event listener. This event [should never be used](https://web.dev/articles/bfcache#never-use-the-unload-event) anymore; the Akismet team should replace it with a more appropriate event, as was done in core ([#55491](https://core.trac.wordpress.org/ticket/55491)).
-
 ### Why is bfcache not working on my site hosted by Pantheon?
 
 Pantheon sites have a [must-use plugin](https://github.com/pantheon-systems/pantheon-mu-plugin) which includes some [Page Cache functionality](https://github.com/pantheon-systems/pantheon-mu-plugin/blob/main/inc/pantheon-page-cache.php). When a user is logged in, it is currently sending a `Cache-Control: no-cache, no-store, must-revalidate` response header. This prevents bfcache from working. A [pull request](https://github.com/pantheon-systems/pantheon-mu-plugin/pull/94) has been opened to fix this, but in the meantime you may work around the issue by preventing this header from being sent with the following plugin code:
