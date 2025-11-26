@@ -56,6 +56,12 @@ require_once __DIR__ . '/includes/script-loader.php';
 require_once __DIR__ . '/includes/bfcache-opt-in.php';
 
 /**
- * Invalidating pages from bfcache.
+ * User options page for BFCache.
+ */
+require_once __DIR__ . '/includes/bfcache-options.php';
+
+
+/**
+ * Invalidating pages from BFCache.
  */
 require_once __DIR__ . '/includes/bfcache-invalidation.php';
