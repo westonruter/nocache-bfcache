@@ -28,7 +28,7 @@ if ( false === $package_json_contents ) {
 }
 $package_json = json_decode( $package_json_contents, true );
 if ( ! is_array( $package_json ) ) {
-	echo "Failed to parse package.json\n";
+	echo 'Failed to parse package.json: ' . ( JSON_ERROR_NONE === json_last_error() ? 'Not an array' : json_last_error_msg() ) . "\n";
 	exit( 1 );
 }
 if ( ! array_key_exists( 'version', $package_json ) ) {
