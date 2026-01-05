@@ -55,7 +55,7 @@ function is_remember_me_used_as_opt_in(): bool {
 	/**
 	 * Filters whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
 	 *
-	 * @since n.e.x.t
+	 * @since 1.3.0
 	 *
 	 * @param bool $enabled Whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
 	 */
