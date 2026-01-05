@@ -55,17 +55,14 @@ jobs:
       - name: Install NPM dependencies
         run: npm ci
 
-      - name: Build assets
-        run: npm run build
+      - name: Build plugin
+        run: npm run plugin-zip
+
+      - name: Unzip to build directory
+        run: unzip -d build *.zip
 
       - name: Run plugin check
         uses: wordpress/plugin-check-action@ec9b3fe9beaa76bcc4510b7ba2cb5855a5f80f3f # v1.1.4
         with:
           wp-version: 'latest'
-          # Exclude file_type because of the dev files present in the repository.
-          exclude-checks:
-            - file_type
-          exclude-directories:
-            - .github
-            - docs
-            - tests
+          build-dir: './build/'
