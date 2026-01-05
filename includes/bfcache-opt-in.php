@@ -55,11 +55,11 @@ function is_remember_me_used_as_opt_in(): bool {
 	/**
 	 * Filters whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
 	 *
-	 * @since n.e.x.t
+	 * @since 1.3.0
 	 *
 	 * @param bool $enabled Whether the "Remember Me" checkbox on the login screen is used as an opt-in to bfcache.
 	 */
-	return (bool) apply_filters( 'nocache_bfcache_use_remember_me_as_opt_in', true );
+	return (bool) apply_filters( 'nocache_bfcache_use_remember_me_as_opt_in', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- It is prefixed with the slug but Plugin Check can't seem to determine what the prefix is. See <https://github.com/WordPress/plugin-check/issues/1099>.
 }
 
 /**

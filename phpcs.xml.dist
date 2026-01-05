@@ -8,6 +8,18 @@
 	<rule ref="WordPress-Docs"/>
 	<rule ref="WordPress-Extra" />
 	<rule ref="WordPress.WP.I18n"/>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="nocache_bfcache"/>
+				<element value="WestonRuter\NocacheBFCache"/>
+			</property>
+		</properties>
+		<exclude-pattern>tools/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.json_encode_json_encode">
+		<exclude-pattern>tools/*</exclude-pattern>
+	</rule>
 
 	<arg value="ps"/>
 	<arg name="extensions" value="php"/>
