@@ -48,6 +48,6 @@ function enqueue_bfcache_invalidation_script_modules(): void {
 	);
 }
 
-foreach ( array( 'wp_enqueue_scripts', 'admin_enqueue_scripts', 'customize_controls_enqueue_scripts' ) as $_action ) {
-	add_action( $_action, __NAMESPACE__ . '\enqueue_bfcache_invalidation_script_modules' );
-}
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_bfcache_invalidation_script_modules' );
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_bfcache_invalidation_script_modules' );
+add_action( 'customize_controls_enqueue_scripts', __NAMESPACE__ . '\enqueue_bfcache_invalidation_script_modules' );
