@@ -61,9 +61,14 @@ jobs:
       - name: Unzip to build directory
         run: unzip -d build *.zip
 
+      - name: Read plugin slug
+        id: slug
+        run: echo "slug=$(jq -r .name package.json)" >> $GITHUB_OUTPUT
+
       - name: Run plugin check
         uses: wordpress/plugin-check-action@ec9b3fe9beaa76bcc4510b7ba2cb5855a5f80f3f # v1.1.4
         with:
           wp-version: 'latest'
           build-dir: './build/'
+          slug: ${{ steps.slug.outputs.slug }}
           ignore-codes: 'readme_reserved_contributors'
