@@ -305,10 +305,10 @@ function is_logged_in_cookie_secure( int $user_id ): bool {
 	$secure_logged_in_cookie = $secure && is_string( $home ) && 'https' === wp_parse_url( $home, PHP_URL_SCHEME );
 
 	/** This filter is documented in wp-includes/pluggable.php */
-	$secure = apply_filters( 'secure_auth_cookie', $secure, $user_id );
+	$secure = apply_filters( 'secure_auth_cookie', $secure, $user_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Intentionally applying core filter.
 
 	/** This filter is documented in wp-includes/pluggable.php */
-	return (bool) apply_filters( 'secure_logged_in_cookie', $secure_logged_in_cookie, $user_id, $secure );
+	return (bool) apply_filters( 'secure_logged_in_cookie', $secure_logged_in_cookie, $user_id, $secure ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Intentionally applying core filter.
 }
 
 /**
