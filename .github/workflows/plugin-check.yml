@@ -66,3 +66,4 @@ jobs:
         with:
           wp-version: 'latest'
           build-dir: './build/'
+          ignore-codes: 'readme_reserved_contributors'
