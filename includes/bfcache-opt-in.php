@@ -387,6 +387,52 @@ function clear_logged_in_cookie(): void {
 add_action( 'clear_auth_cookie', __NAMESPACE__ . '\clear_logged_in_cookie' );
 
 /**
+ * Determines whether Batcache or similar full-page caching is active.
+ *
+ * This is used to prevent the plugin from interfering with page caching
+ * for logged-out users on hosts like Pressable that use Batcache.
+ *
+ * @since 1.3.2
+ * @access private
+ *
+ * @return bool Whether Batcache or similar full-page caching is detected.
+ */
+function is_batcache_active(): bool {
+	/**
+	 * Filters whether Batcache compatibility mode is enabled.
+	 *
+	 * When enabled, this plugin will not modify Cache-Control headers for
+	 * logged-out users, allowing Batcache to cache pages normally.
+	 *
+	 * @since 1.3.2
+	 *
+	 * @param bool|null $is_active Whether Batcache is active. Null to auto-detect.
+	 */
+	$is_active = apply_filters( 'nocache_bfcache_batcache_active', null );
+
+	if ( null !== $is_active ) {
+		return (bool) $is_active;
+	}
+
+	// Auto-detect Batcache via the BATCACHE constant (set by advanced-cache.php).
+	if ( defined( 'BATCACHE' ) ) {
+		return true;
+	}
+
+	// Detect Pressable hosting environment.
+	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+		return true;
+	}
+
+	// Check for Pressable via environment or server variables.
+	if ( isset( $_ENV['IS_PRESSABLE'] ) || ( isset( $_SERVER['IS_PRESSABLE'] ) && $_SERVER['IS_PRESSABLE'] ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Filters nocache_headers to remove the no-store directive.
  *
  * @since 1.0.0
@@ -404,6 +450,13 @@ function filter_nocache_headers( $headers ): array {
 	 */
 	if ( ! is_array( $headers ) ) {
 		$headers = array();
+	}
+
+	// When Batcache is active and the user is not logged in, skip header modification
+	// to allow Batcache to cache pages for anonymous users. Logged-in users still get
+	// bfcache support since Batcache doesn't cache authenticated pages anyway.
+	if ( is_batcache_active() && function_exists( 'is_user_logged_in' ) && ! is_user_logged_in() ) {
+		return $headers;
 	}
 
 	// This does not short-circuit if is_user_logged_in() because some plugins send `Cache-Control: no-store` (CCNS)
