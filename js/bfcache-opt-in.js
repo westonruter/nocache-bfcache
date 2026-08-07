@@ -18,7 +18,7 @@ const moduleId = '@nocache-bfcache/bfcache-opt-in';
 /**
  * Selector for JSON script element.
  *
- * @since n.e.x.t
+ * @since 1.3.2
  * @type {string}
  */
 const jsonScriptSelector = `script[id="wp-script-module-data-${ moduleId }"]`;
