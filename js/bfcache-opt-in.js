@@ -16,14 +16,25 @@
 const moduleId = '@nocache-bfcache/bfcache-opt-in';
 
 /**
+ * Selector for JSON script element.
+ *
+ * @since 1.3.2
+ * @type {string}
+ */
+const jsonScriptSelector = `script[id="wp-script-module-data-${ moduleId }"]`;
+
+/**
  * JSON script containing the PHP exports.
  *
  * @since 1.0.0
- * @type {HTMLScriptElement}
+ * @type {HTMLScriptElement|null}
  */
-const jsonScript = /** @type {HTMLScriptElement} */ (
-	document.getElementById( `wp-script-module-data-${ moduleId }` )
+const jsonScript = /** @type {HTMLScriptElement|null} */ (
+	document.querySelector( jsonScriptSelector )
 );
+if ( ! ( jsonScript instanceof HTMLScriptElement ) ) {
+	throw new Error( `Missing: ${ jsonScriptSelector }` );
+}
 
 /**
  * Exports from PHP.
